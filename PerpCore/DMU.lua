@@ -14,7 +14,7 @@ local tbl =
 				},
 				enabled = false,
 				eventType = 18,
-				execute = "-- [Debug] OnAOECreate\n-- Verbose logging of every AOE created, a world-text label over it (name, ID, castType,\n-- size, duration, heading), and a drawn shape matching aoeCastType. Loops (self.used each fire).\n\nlocal aoeId    = eventArgs.aoeID\nlocal castType = tonumber(eventArgs.aoeCastType) or 0\nlocal len      = tonumber(eventArgs.aoeLength) or 0\nlocal wid      = tonumber(eventArgs.aoeWidth) or 0\nlocal heading  = tonumber(eventArgs.heading) or 0\nlocal x, y, z  = eventArgs.x, eventArgs.y, eventArgs.z\nlocal durationMs = (tonumber(eventArgs.duration) or 5) * 1000\n\nd(\"[Debug AOE] name=\" .. tostring(eventArgs.aoeName) .. \" id=\" .. tostring(aoeId) .. \" castType=\" .. tostring(castType) .. \" aoeType=\" .. tostring(eventArgs.aoeType) .. \" length=\" .. tostring(len) .. \" width=\" .. tostring(wid) .. \" heading=\" .. string.format(\"%.3f\", heading) .. \" duration=\" .. tostring(eventArgs.duration) .. \" targetAttach=\" .. tostring(eventArgs.targetAttach) .. \" pos=\" .. string.format(\"%.1f, %.1f, %.1f\", x or 0, y or 0, z or 0))\n\nif AnyoneCore and AnyoneCore.addTimedWorldText then\n    local label = string.format(\"%s\\nID: %s  CT: %s  Type: %s\\nL: %s  W: %s  Hd: %.2f\\nDur: %ss\", tostring(eventArgs.aoeName), tostring(aoeId), tostring(castType), tostring(eventArgs.aoeType), tostring(len), tostring(wid), heading, tostring(eventArgs.duration))\n    local cx, cz = x, z\n    local isDirectional = (castType == 3 or castType == 13 or castType == 4 or castType == 12 or castType == 8)\n    if isDirectional and TensorCore and TensorCore.getPosInDirection then\n        local mid = TensorCore.getPosInDirection({ x = x, y = y, z = z }, heading, len * 0.5)\n        if mid then\n            cx, cz = mid.x, mid.z\n        end\n    end\n    local textPos = { x = cx, y = y, z = cz }\n    AnyoneCore.addTimedWorldText(durationMs, label, textPos, 0xFFFFFFFF, true, 0.8)\nend\n\nself.used = true\n",
+				execute = "-- [Debug] OnAOECreate\n-- Verbose logging of every AOE created, a world-text label over it (name, ID, castType,\n-- size, duration, heading), and a drawn shape matching aoeCastType. Loops (self.used each fire).\n\nlocal aoeId    = eventArgs.aoeID\nlocal castType = tonumber(eventArgs.aoeCastType) or 0\nlocal len      = tonumber(eventArgs.aoeLength) or 0\nlocal wid      = tonumber(eventArgs.aoeWidth) or 0\nlocal heading  = tonumber(eventArgs.heading) or 0\nlocal x, y, z  = eventArgs.x, eventArgs.y, eventArgs.z\nlocal durationMs = (tonumber(eventArgs.duration) or 5) * 1000\n\nd(\"[Debug AOE] name=\" .. tostring(eventArgs.aoeName) ..\n    \" id=\" .. tostring(aoeId) ..\n    \" castType=\" .. tostring(castType) ..\n    \" aoeType=\" .. tostring(eventArgs.aoeType) ..\n    \" length=\" .. tostring(len) ..\n    \" width=\" .. tostring(wid) ..\n    \" heading=\" .. string.format(\"%.3f\", heading) ..\n    \" duration=\" .. tostring(eventArgs.duration) ..\n    \" targetAttach=\" .. tostring(eventArgs.targetAttach) ..\n    \" pos=\" .. string.format(\"%.1f, %.1f, %.1f\", x or 0, y or 0, z or 0))\n\n-- World-text label centered inside the AOE. Directional shapes (cones/lines) originate at the\n-- event position, so their visual center is half the length along the heading -- offset the\n-- label there so AOEs sharing an origin but pointing different ways don't overlap.\nif AnyoneCore and AnyoneCore.addTimedWorldText then\n    local label = string.format(\n        \"%s\\nID: %s  CT: %s  Type: %s\\nL: %s  W: %s  Hd: %.2f\\nDur: %ss\",\n        tostring(eventArgs.aoeName), tostring(aoeId), tostring(castType), tostring(eventArgs.aoeType),\n        tostring(len), tostring(wid), heading, tostring(eventArgs.duration)\n    )\n    local cx, cz = x, z\n    local isDirectional = (castType == 3 or castType == 13 or castType == 4 or castType == 12 or castType == 8)\n    if isDirectional and TensorCore and TensorCore.getPosInDirection then\n        local mid = TensorCore.getPosInDirection({ x = x, y = y, z = z }, heading, len * 0.5)\n        if mid then\n            cx, cz = mid.x, mid.z\n        end\n    end\n    local textPos = { x = cx, y = y, z = cz }\n    AnyoneCore.addTimedWorldText(durationMs, label, textPos, 0xFFFFFFFF, true, 0.8)\nend\n\nself.used = true\n",
 				executeType = 2,
 				loop = true,
 				mechanicTime = 15.282,
@@ -162,7 +162,7 @@ local tbl =
 				conditions = 
 				{
 				},
-				execute = "-- Fake ice\nArgus.setActionAOEType(47771, 0, 0)\nArgus.setActionAOEType(47771, 1, 0)\n\n-- Fake thunder\nArgus.setActionAOEType(47776, 0, 0)\nArgus.setActionAOEType(47776, 1, 0)\n\nself.used = true\n",
+				execute = "-- Disable the in-game omen VFX for every ice/thunder AOE we know of (setting both type indices\n-- to 0 hides the native omen). We draw our own callouts/safespots, so the native telegraphs --\n-- especially the misleading \"fake\" ones -- only add noise.\n\n-- Ice\nArgus.setActionAOEType(47768, 0, 0) -- real ice\nArgus.setActionAOEType(47768, 1, 0)\nArgus.setActionAOEType(47771, 0, 0) -- fake ice\nArgus.setActionAOEType(47771, 1, 0)\nArgus.setActionAOEType(47774, 0, 0) -- ice danger (spawns with fake ice)\nArgus.setActionAOEType(47774, 1, 0)\n\n-- Thunder\nArgus.setActionAOEType(47775, 0, 0) -- real thunder\nArgus.setActionAOEType(47775, 1, 0)\nArgus.setActionAOEType(47776, 0, 0) -- fake thunder\nArgus.setActionAOEType(47776, 1, 0)\nArgus.setActionAOEType(47777, 0, 0) -- thunder danger (spawns with fake thunder)\nArgus.setActionAOEType(47777, 1, 0)\n\n-- Shared arena geometry (used by multiple reactions for full-arena draws, distance checks, etc.)\ndata.arenaCenter = { x = 100, y = 0, z = 100 }\ndata.arenaRadius = 20\n\nself.used = true\n",
 				executeType = 2,
 				mechanicTime = 15.282,
 				name = "[PerpCore] Setup",
@@ -173,8 +173,180 @@ local tbl =
 			},
 		},
 	}, 
-	[3] = 
+	[5] = 
 	{
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+					
+					{
+						data = 
+						{
+							aType = "Lua",
+							actionLua = "data.kefkaMarkers = data.kefkaMarkers or {}\ntable.insert(data.kefkaMarkers, eventArgs.markerID)\nself.used = true\n",
+							conditions = 
+							{
+								
+								{
+									"b25bc53a-1a0e-571c-b497-99dc27eb57be",
+									true,
+								},
+							},
+							endIfUsed = true,
+							gVar = "ACR_RikuNIN3_CD",
+							uuid = "f2897081-a616-76a1-93c4-0550eaf77528",
+							version = 2.1,
+						},
+					},
+				},
+				conditions = 
+				{
+					
+					{
+						data = 
+						{
+							category = "Event",
+							eventArgType = 3,
+							markerIDList = 
+							{
+								673,
+								674,
+								675,
+								676,
+							},
+							name = "Is Kefka Marker",
+							uuid = "b25bc53a-1a0e-571c-b497-99dc27eb57be",
+							version = 3,
+						},
+					},
+				},
+				eventType = 4,
+				loop = true,
+				mechanicTime = 37.11,
+				name = "[MM1] Record Kefka Markers",
+				timeRange = true,
+				timelineIndex = 5,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "5dc7c86a-c93f-7272-9bbf-dd34a95e51f3",
+				version = 2,
+			},
+		},
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+					
+					{
+						data = 
+						{
+							aType = "Lua",
+							actionLua = "data.partyMarkers = data.partyMarkers or {}\ntable.insert(data.partyMarkers, eventArgs.markerID)\nself.used = true\n",
+							conditions = 
+							{
+								
+								{
+									"2fc1ee6c-f0c4-ccb2-91c1-14b4bd600426",
+									true,
+								},
+							},
+							endIfUsed = true,
+							gVar = "ACR_RikuNIN3_CD",
+							uuid = "6c4dc328-d4d0-d4a1-b755-715a5d6952d9",
+							version = 2.1,
+						},
+					},
+				},
+				conditions = 
+				{
+					
+					{
+						data = 
+						{
+							category = "Event",
+							eventArgType = 3,
+							markerIDList = 
+							{
+								128,
+								127,
+							},
+							name = "Is Party Marker",
+							uuid = "2fc1ee6c-f0c4-ccb2-91c1-14b4bd600426",
+							version = 3,
+						},
+					},
+				},
+				eventType = 4,
+				loop = true,
+				mechanicTime = 37.11,
+				name = "[MM1] Record Party Markers",
+				timeRange = true,
+				timelineIndex = 5,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "dc32ef1f-9956-3a82-8e18-7eac01ae7a1f",
+				version = 2,
+			},
+		},
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+					
+					{
+						data = 
+						{
+							aType = "Lua",
+							actionLua = "-- Record the full AOE data (not just the id) so Draw Safespot can re-draw / subtract the shapes.\ndata.mm1AOEs = data.mm1AOEs or {}\ntable.insert(data.mm1AOEs, {\n    aoeID       = eventArgs.aoeID,\n    x           = eventArgs.x,\n    y           = eventArgs.y,\n    z           = eventArgs.z,\n    aoeCastType = eventArgs.aoeCastType,\n    aoeLength   = eventArgs.aoeLength,\n    aoeWidth    = eventArgs.aoeWidth,\n    heading     = eventArgs.heading,\n    duration    = eventArgs.duration,\n})\nself.used = true\n",
+							conditions = 
+							{
+								
+								{
+									"c7b16078-69d7-b2f4-bcaa-0a4a119cc1ee",
+									true,
+								},
+							},
+							endIfUsed = true,
+							gVar = "ACR_RikuNIN3_CD",
+							uuid = "068dbd1e-2b92-03b7-b8c7-b79f959f3299",
+							version = 2.1,
+						},
+					},
+				},
+				conditions = 
+				{
+					
+					{
+						data = 
+						{
+							category = "Lua",
+							conditionLua = "return eventArgs.aoeID == 47771 or eventArgs.aoeID == 47768 or eventArgs.aoeID == 47774",
+							name = "Is Ice AOE",
+							uuid = "c7b16078-69d7-b2f4-bcaa-0a4a119cc1ee",
+							version = 3,
+						},
+					},
+				},
+				eventType = 18,
+				loop = true,
+				mechanicTime = 37.11,
+				name = "[MM1] Record AOEs",
+				timeRange = true,
+				timelineIndex = 5,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "b2999308-767a-8110-a3fb-01bc97c75b2a",
+				version = 2,
+			},
+			inheritedIndex = 2,
+		},
 		
 		{
 			data = 
@@ -185,17 +357,41 @@ local tbl =
 				conditions = 
 				{
 				},
-				eventType = 4,
-				execute = "-- [MM1] Callout Safespot\n-- OnEntityMarkerAdd\n-- Collect markers (min 4), resolve stack/spread + inside/outside cleave and shotcall (once).\n-- Then highlight the ice safe spots in green via PerpCore.DrawAOESafespots: real ice (47768) are the\n-- danger zones (rotated 90 CW to the safe spots); fake ice (47771) AOEs are already the safe spots.\n\nlocal SPREAD_MARKER = 127\nlocal FIRE_TRUE     = 674\nlocal FIRE_FALSE    = 673\nlocal ICE_TRUE      = 676\nlocal ICE_FALSE     = 675\n\nlocal REAL_ICE      = 47768 -- danger zones -> rotate 90 CW to find the safe spots\nlocal FAKE_ICE      = 47771 -- already the safe spots -> draw as-is\n\ndata.mm1Markers     = data.mm1Markers or {}\ntable.insert(data.mm1Markers, eventArgs.markerID)\n\n-- Wait until at least 4 markers have arrived\nif #data.mm1Markers < 4 then\n    return\nend\n\n-- Scan collected markers\nlocal hasSpread, fire, ice = false, nil, nil\nfor _, id in ipairs(data.mm1Markers) do\n    if id == SPREAD_MARKER then hasSpread = true end\n    if id == FIRE_TRUE then fire = true end\n    if id == FIRE_FALSE then fire = false end\n    if id == ICE_TRUE then ice = true end\n    if id == ICE_FALSE then ice = false end\nend\n\n-- Need both fire and ice resolved before we can call\nif fire == nil or ice == nil then\n    return\nend\n\n-- Callout once. Markers resolve independently of (and usually before) the AOEs spawning, so we\n-- fire the shotcall immediately and gate only the drawing on the AOEs below.\nif not data.mm1CalledOut then\n    local mechanic = hasSpread and \"Spread\" or \"Stack\"\n    -- Fire false inverts the mechanic\n    if not fire then\n        mechanic = (mechanic == \"Spread\") and \"Stack\" or \"Spread\"\n    end\n    -- Ice true = outside cleave, ice false = inside cleave\n    local cleave = ice and \"outside\" or \"inside\"\n    local shotcall = mechanic .. \" \" .. cleave .. \" cleave\"\n    if AnyoneCore and AnyoneCore.Shotcall then\n        AnyoneCore.Shotcall(shotcall, false, 5, false, 100)\n    end\n    data.mm1CalledOut = true\nend\n\n-- Ice true = real ice (danger 47768, rotate to safe); ice false = fake ice (safe 47771, as-is).\nif not (PerpCore and PerpCore.DrawAOESafespots) then\n    return\nend\nlocal drawn = PerpCore.DrawAOESafespots({ aoeId = ice and REAL_ICE or FAKE_ICE, rotate = (ice == true) })\n\n-- Returning without self.used keeps the reaction armed so it re-checks on the next marker event.\nif drawn < 2 then\n    return\nend\n\ndata.mm1Markers   = {}\ndata.mm1CalledOut = nil\nself.used         = true\n",
+				execute = "-- [MM1] Callout Safespot\n-- Resolves stack/spread + inside/outside cleave from the recorded markers and shotcalls once.\n-- Stays armed until every recording condition is met: 2 or 4 AOEs, exactly 2 kefka markers,\n-- and at least 1 party marker.\n--   Kefka markers carry one fire (674 true / 673 false) and one ice (676 true / 675 false).\n--   A party spread marker (127) = spread, stack marker (128) = stack -- but fire false flips it.\n--   Ice true = outside cleave, ice false = inside cleave.\n\nlocal FIRE_TRUE     = 674\nlocal FIRE_FALSE    = 673\nlocal ICE_TRUE      = 676\nlocal ICE_FALSE     = 675\nlocal SPREAD_MARKER = 127\n\n-- Read-only: bail until the recorder reactions have created all three tables. Do NOT initialise\n-- them here -- this runs on OnUpdate and must never race/clobber the data the recorders own.\nif not (data.mm1AOEs and data.kefkaMarkers and data.partyMarkers) then\n    return\nend\n\nlocal aoes  = data.mm1AOEs\nlocal kefka = data.kefkaMarkers\nlocal party = data.partyMarkers\n\n-- All recording conditions must be satisfied first.\nif not ((#aoes == 2 or #aoes == 4) and #kefka == 2 and #party >= 1) then\n    return\nend\n\n-- Resolve fire + ice from the kefka markers.\nlocal fire, ice = nil, nil\nfor _, id in ipairs(kefka) do\n    if id == FIRE_TRUE then fire = true\n    elseif id == FIRE_FALSE then fire = false\n    elseif id == ICE_TRUE then ice = true\n    elseif id == ICE_FALSE then ice = false end\nend\nif fire == nil or ice == nil then\n    return\nend\n\n-- Spread vs stack from the party markers (anything that isn't spread is treated as stack).\nlocal hasSpread = false\nfor _, id in ipairs(party) do\n    if id == SPREAD_MARKER then hasSpread = true end\nend\n\nlocal mechanic = hasSpread and \"Spread\" or \"Stack\"\n-- Fire false inverts the mechanic.\nif not fire then\n    mechanic = (mechanic == \"Spread\") and \"Stack\" or \"Spread\"\nend\n\nlocal cleave = ice and \"outside\" or \"inside\"\nlocal shotcall = mechanic .. \" \" .. cleave .. \" cleave\"\nif AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(shotcall, false, 5, false, 100)\nend\n\nself.used = true\n",
 				executeType = 2,
-				mechanicTime = 29,
+				mechanicTime = 37.11,
 				name = "[MM1] Callout Safespot",
 				timeRange = true,
-				timelineIndex = 3,
-				timerEndOffset = 10,
-				uuid = "de7fdfb1-216b-183a-832e-29788c2e55bc",
+				timelineIndex = 5,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "b5908426-a665-6891-93c2-bcdca9403e83",
 				version = 2,
 			},
+			inheritedIndex = 3,
+		},
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+				},
+				conditions = 
+				{
+				},
+				execute = "-- [MM1] Draw Safespot\n-- Highlights the ice safe zone using subtractive (occlusion) drawing: a full-arena green circle\n-- with the danger ice AOEs carved out of it via FLAG_OCCLUDE -- so only the safe ground stays green.\n-- Stays armed until every recording condition is met: 2 or 4 AOEs, exactly 2 kefka markers,\n-- and at least 1 party marker.\n--   Ice true  -> subtract real ice  (47768, the danger zones).\n--   Ice false -> subtract ice danger (47774).\n\nlocal CENTER       = data.arenaCenter or { x = 100, y = 0, z = 100 }\nlocal ARENA_RADIUS = data.arenaRadius or 20\nlocal SEG          = 50\n\nlocal ICE_TRUE     = 676\nlocal ICE_FALSE    = 675\nlocal REAL_ICE     = 47768 -- danger when ice is true\nlocal ICE_DANGER   = 47774 -- danger when ice is false\n\n-- Read-only: bail until the recorder reactions have created all three tables. Do NOT initialise\n-- them here -- this runs on OnUpdate and must never race/clobber the data the recorders own.\nif not (data.mm1AOEs and data.kefkaMarkers and data.partyMarkers) then\n    return\nend\n\nlocal aoes  = data.mm1AOEs\nlocal kefka = data.kefkaMarkers\nlocal party = data.partyMarkers\n\n-- All recording conditions must be satisfied first.\nif not ((#aoes == 2 or #aoes == 4) and #kefka == 2 and #party >= 1) then\n    return\nend\n\nif not (Argus2 and GUI and PerpCore and PerpCore.DrawAOEShape) then\n    return\nend\n\n-- Resolve ice from the kefka markers.\nlocal ice = nil\nfor _, id in ipairs(kefka) do\n    if id == ICE_TRUE then ice = true\n    elseif id == ICE_FALSE then ice = false end\nend\nif ice == nil then\n    return\nend\n\nlocal dangerId = ice and REAL_ICE or ICE_DANGER\n\n-- Match the draw lifetime to the danger AOEs (fallback 8s).\nlocal ms = 0\nfor _, a in ipairs(aoes) do\n    if tonumber(a.aoeID) == dangerId then\n        ms = math.max(ms, (tonumber(a.duration) or 6) * 1000)\n    end\nend\nif ms <= 0 then ms = 8000 end\n\n-- FLAG_OCCLUDE carves the draw out as negative space; FLAG_WARP_TERRAIN makes it follow the ground.\nlocal occlude = Argus2.RenderFlags.FLAG_OCCLUDE | Argus2.RenderFlags.FLAG_WARP_TERRAIN\nlocal green   = GUI:ColorConvertFloat4ToU32(0, 1, 0, 0.4)\n\n-- Full-arena green circle (solid fill, gradientIntensity 0), then subtract each danger AOE.\nArgus2.addTimedCircleFilled(ms, CENTER.x, CENTER.y, CENTER.z, ARENA_RADIUS, SEG, green, green, nil, 0, nil, nil, nil, 0)\n\nfor _, a in ipairs(aoes) do\n    if tonumber(a.aoeID) == dangerId then\n        PerpCore.DrawAOEShape(green, a.x, a.y, a.z, a.aoeCastType, a.aoeLength, a.aoeWidth, a.heading, ms, occlude)\n    end\nend\n\nself.used = true\n",
+				executeType = 2,
+				mechanicTime = 37.11,
+				name = "[MM1] Draw Safespot",
+				timeRange = true,
+				timelineIndex = 5,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "de68e665-d367-cbc7-964d-3b5e898f5641",
+				version = 2,
+			},
+			inheritedIndex = 3,
 		},
 		
 		{
@@ -240,17 +436,19 @@ local tbl =
 					},
 				},
 				eventType = 2,
-				mechanicTime = 29,
+				mechanicTime = 37.11,
 				name = "Conga Reminder",
 				timeRange = true,
-				timelineIndex = 3,
-				timerEndOffset = 15,
-				uuid = "f33d240e-3e94-cfe3-b311-174392303dbf",
+				timelineIndex = 5,
+				timerEndOffset = 3,
+				timerStartOffset = -1,
+				uuid = "9a3ac167-b0df-5975-8e3b-419d10002544",
 				version = 2,
 			},
+			inheritedIndex = 6,
 		},
 	},
-	[6] = 
+	[7] = 
 	{
 		
 		{
@@ -262,15 +460,35 @@ local tbl =
 				conditions = 
 				{
 				},
-				eventType = 18,
-				execute = "-- Callout Tower\n-- OnAOECreate\n-- Tower AOEs: avoid if we have the magic vuln buff, otherwise soak and draw the tower circle.\n\nlocal TOWER_AOE  = 47786\nlocal MAGIC_VULN = 2941\n\nif eventArgs.aoeID ~= TOWER_AOE then\n    return\nend\n\nlocal me = PerpCore.GetPlayer(data.perspective)\nlocal hasBuff = me and TensorCore and TensorCore.hasBuff and TensorCore.hasBuff(me, MAGIC_VULN)\n\nif hasBuff then\n    AnyoneCore.Shotcall(\"Avoid Tower\", false, 5, false, 100)\n    self.used = true\nelse\n    AnyoneCore.Shotcall(\"Soak Tower\", false, 5, false, 100)\n\n    -- Draw a green circle matching the AOE's radius and duration\n    if Argus2 and Argus2.addTimedCircleFilled then\n        local durationMs   = (eventArgs.duration or 5) * 1000\n        local greenFill    = GUI:ColorConvertFloat4ToU32(0, 1, 0, 0.4)\n        local greenOutline = GUI:ColorConvertFloat4ToU32(0, 1, 0, 1)\n        Argus2.addTimedCircleFilled(durationMs, eventArgs.x, eventArgs.y, eventArgs.z, eventArgs.aoeLength, 32, greenFill, greenOutline)\n    end\n    self.used = true\nend\n",
+				execute = "-- [MM1] Cleanup\n-- Clear everything Mystery Magic 1 recorded/used so a later MM1 (or a fresh pull) starts clean.\n-- Setting to nil (not {}) lets the recorder reactions re-create the tables on their next event,\n-- and keeps the read-only Callout/Draw reactions bailing until data exists again.\ndata.mm1AOEs      = nil\ndata.kefkaMarkers = nil\ndata.partyMarkers = nil\n\nself.used = true\n",
 				executeType = 2,
-				mechanicTime = 37.953,
+				mechanicTime = 42.188,
+				name = "[MM1] Cleanup",
+				timelineIndex = 7,
+				uuid = "eda41e18-58fa-9168-a6dd-1fe1c041dae1",
+				version = 2,
+			},
+			inheritedIndex = 1,
+		},
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+				},
+				conditions = 
+				{
+				},
+				eventType = 18,
+				execute = "-- Callout Tower\n-- OnAOECreate\n\nlocal TOWER_AOE  = 47786\nlocal MAGIC_VULN = 2941\n\nif eventArgs.aoeID ~= TOWER_AOE then\n    return\nend\n\nlocal hasBuff = TensorCore and TensorCore.hasBuff and\n    TensorCore.hasBuff(PerpCore.GetPlayer(data.perspective), MAGIC_VULN)\n\nAnyoneCore.Shotcall(hasBuff and \"Avoid Tower\" or \"Soak Tower\", false, 5, false, 100)\nself.used = true\n",
+				executeType = 2,
+				mechanicTime = 42.188,
 				name = "Callout Tower",
 				timeRange = true,
-				timelineIndex = 6,
+				timelineIndex = 7,
 				timerEndOffset = 10,
-				uuid = "b4426b57-f12a-4be2-9e23-faa15d5dd1cf",
+				uuid = "2024bf3d-63c6-b4f3-846d-ae5b017577da",
 				version = 2,
 			},
 		},
@@ -285,7 +503,7 @@ local tbl =
 						data = 
 						{
 							aType = "Lua",
-							actionLua = "-- Callout Confetti\n-- OnEntityCast (spellID checked by reaction condition)\n-- Iterate the party, find everyone with Confetti (5078), draw a purple circle that follows\n-- them for the buff's duration, and shotcall \"Knockback Party\" if one of them is me.\n\nlocal CONFETTI      = 5078\nlocal CIRCLE_RADIUS = 6\n\nlocal party = PerpCore.GetPartyEntities() or {}\nlocal me = PerpCore.GetPlayer(data.perspective)\n\nlocal purple = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 0.4)\nlocal drawer = TensorCore.getStaticDrawer(purple, 2)\n\nlocal iHaveIt = false\nfor _, ent in ipairs(party) do\n    if ent and ent.id and ent.buffs then\n        local duration\n        for _, b in pairs(ent.buffs) do\n            if b and tonumber(b.id) == CONFETTI then\n                duration = tonumber(b.duration) or 5\n                break\n            end\n        end\n        if duration then\n            drawer:addTimedCircleOnEnt(duration * 1000, ent.id, CIRCLE_RADIUS)\n            if me and ent.id == me.id then\n                iHaveIt = true\n            end\n        end\n    end\nend\n\nif iHaveIt and AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(\"Knockback Party\", false, 5, false, 100)\nend\n\nself.used = true",
+							actionLua = "-- Callout Confetti\n-- OnEntityCast (spellID checked by reaction condition)\n-- Iterate the party, find everyone with Confetti (5078), draw a purple circle that follows\n-- them for the buff's duration, and shotcall \"Knockback Party\" if one of them is me.\n\nlocal CONFETTI      = 5078\nlocal CIRCLE_RADIUS = 6\n\nlocal party = PerpCore.GetPartyEntities() or {}\nlocal me = PerpCore.GetPlayer(data.perspective)\n\n-- Entity-attached draw so the circle tracks the player's live position\nlocal purple = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 0.4)\nlocal white  = GUI:ColorConvertFloat4ToU32(1, 1, 1, 1)\nlocal drawer = TensorCore.getStaticDrawer(purple, 2)\n\nlocal iHaveIt = false\nfor _, ent in ipairs(party) do\n    if ent and ent.id and ent.buffs then\n        local duration\n        for _, b in pairs(ent.buffs) do\n            if b and tonumber(b.id) == CONFETTI then\n                duration = tonumber(b.duration) or 5\n                break\n            end\n        end\n        if duration then\n            local ms = duration * 1000\n            drawer:addTimedCircleOnEnt(ms, ent.id, CIRCLE_RADIUS)\n            -- Countdown in the middle of the circle showing how long it lasts (white text, with background).\n            if AnyoneCore and AnyoneCore.addWorldTextCountdownOnEnt then\n                AnyoneCore.addWorldTextCountdownOnEnt(ms, ent.id, white, true)\n            end\n            if me and ent.id == me.id then\n                iHaveIt = true\n            end\n        end\n    end\nend\n\nif iHaveIt and AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(\"Knockback Party\", false, 5, false, 100)\nend\n\nself.used = true\n",
 							conditions = 
 							{
 								
@@ -308,26 +526,164 @@ local tbl =
 						{
 							category = "Event",
 							eventArgType = 2,
-							eventSpellID = 47786,
-							name = "Is Explosion",
+							eventSpellID = 47782,
+							name = "Is Confetti",
 							uuid = "d24aa2a2-bcc6-dbad-aedf-5dab2103ed3a",
 							version = 3,
 						},
 					},
 				},
 				eventType = 2,
-				mechanicTime = 37.953,
+				mechanicTime = 42.188,
 				name = "Callout Confetti",
 				timeRange = true,
-				timelineIndex = 6,
+				timelineIndex = 7,
 				timerEndOffset = 10,
-				uuid = "a37e1277-3430-bb17-bbfc-0f224bd0362b",
+				uuid = "81ee8dc6-d561-3c25-8ed3-d7edd8b1fa84",
 				version = 2,
 			},
 		},
 	},
-	[10] = 
+	[11] = 
 	{
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+					
+					{
+						data = 
+						{
+							aType = "Lua",
+							actionLua = "data.kefkaMarkers = data.kefkaMarkers or {}\ntable.insert(data.kefkaMarkers, eventArgs.markerID)\nself.used = true\n",
+							conditions = 
+							{
+								
+								{
+									"b25bc53a-1a0e-571c-b497-99dc27eb57be",
+									true,
+								},
+							},
+							endIfUsed = true,
+							gVar = "ACR_RikuNIN3_CD",
+							uuid = "f2897081-a616-76a1-93c4-0550eaf77528",
+							version = 2.1,
+						},
+					},
+				},
+				conditions = 
+				{
+					
+					{
+						data = 
+						{
+							category = "Event",
+							eventArgType = 3,
+							markerIDList = 
+							{
+								675,
+								676,
+								677,
+								678,
+							},
+							name = "Is Kefka Marker",
+							uuid = "b25bc53a-1a0e-571c-b497-99dc27eb57be",
+							version = 3,
+						},
+					},
+				},
+				eventType = 4,
+				loop = true,
+				mechanicTime = 53.407,
+				name = "[MM2] Record Kefka Markers",
+				timeRange = true,
+				timelineIndex = 11,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "bc5992ac-33a5-76aa-8456-1910a5818da0",
+				version = 2,
+			},
+			inheritedIndex = 1,
+		},
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+					
+					{
+						data = 
+						{
+							aType = "Lua",
+							actionLua = "-- Record the full AOE data (not just the id) so Draw Safespot can re-draw / subtract the shapes.\ndata.mm2AOEs = data.mm2AOEs or {}\ntable.insert(data.mm2AOEs, {\n    aoeID       = eventArgs.aoeID,\n    x           = eventArgs.x,\n    y           = eventArgs.y,\n    z           = eventArgs.z,\n    aoeCastType = eventArgs.aoeCastType,\n    aoeLength   = eventArgs.aoeLength,\n    aoeWidth    = eventArgs.aoeWidth,\n    heading     = eventArgs.heading,\n    duration    = eventArgs.duration,\n})\nself.used = true\n",
+							conditions = 
+							{
+								
+								{
+									"c7b16078-69d7-b2f4-bcaa-0a4a119cc1ee",
+									true,
+								},
+							},
+							endIfUsed = true,
+							gVar = "ACR_RikuNIN3_CD",
+							uuid = "068dbd1e-2b92-03b7-b8c7-b79f959f3299",
+							version = 2.1,
+						},
+					},
+				},
+				conditions = 
+				{
+					
+					{
+						data = 
+						{
+							category = "Lua",
+							conditionLua = "return eventArgs.aoeID == 47771 or eventArgs.aoeID == 47768 or eventArgs.aoeID == 47774 or eventArgs.aoeID == 47775 or eventArgs.aoeID == 47776 or eventArgs.aoeID == 47777",
+							name = "Is Ice or Thunder AOE",
+							uuid = "c7b16078-69d7-b2f4-bcaa-0a4a119cc1ee",
+							version = 3,
+						},
+					},
+				},
+				eventType = 18,
+				loop = true,
+				mechanicTime = 53.407,
+				name = "[MM2] Record AOEs",
+				timeRange = true,
+				timelineIndex = 11,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "aa6f94c8-4342-4aa9-bada-872ebf650c4a",
+				version = 2,
+			},
+			inheritedIndex = 3,
+		},
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+				},
+				conditions = 
+				{
+				},
+				execute = "-- [MM2] Callout Safespot\n-- Resolves whether ice and thunder are real or fake from the 2 kefka markers, then shotcalls once.\n-- Read-only on data; bails until both kefka markers AND every expected AOE are present.\n--   both real -> \"Both real\"; both fake -> \"Both fake\"; otherwise name the fake element.\n\nlocal ICE_TRUE       = 676 -- real ice\nlocal ICE_FALSE      = 675 -- fake ice\nlocal THUNDER_TRUE   = 678 -- real thunder\nlocal THUNDER_FALSE  = 677 -- fake thunder\n\nlocal REAL_ICE       = 47768\nlocal FAKE_ICE       = 47771\nlocal ICE_DANGER     = 47774\nlocal REAL_THUNDER   = 47775\nlocal FAKE_THUNDER   = 47776\nlocal THUNDER_DANGER = 47777\n\nif not (data.mm2AOEs and data.kefkaMarkers) then\n    return\nend\n\nlocal aoes  = data.mm2AOEs\nlocal kefka = data.kefkaMarkers\n\n-- Exactly the two kefka markers (one ice, one thunder).\nif #kefka ~= 2 then\n    return\nend\n\n-- Resolve ice/thunder: true = real, false = fake.\nlocal ice, thunder = nil, nil\nfor _, id in ipairs(kefka) do\n    if id == ICE_TRUE then ice = true\n    elseif id == ICE_FALSE then ice = false\n    elseif id == THUNDER_TRUE then thunder = true\n    elseif id == THUNDER_FALSE then thunder = false end\nend\nif ice == nil or thunder == nil then\n    return\nend\n\n-- Verify every AOE that should have spawned is present (real = 2 danger; fake = 2 safe + 2 danger).\nlocal function countById(id)\n    local n = 0\n    for _, a in ipairs(aoes) do\n        if tonumber(a.aoeID) == id then n = n + 1 end\n    end\n    return n\nend\n\nlocal iceOk\nif ice then\n    iceOk = countById(REAL_ICE) >= 2\nelse\n    iceOk = countById(FAKE_ICE) >= 2 and countById(ICE_DANGER) >= 2\nend\n\nlocal thunderOk\nif thunder then\n    thunderOk = countById(REAL_THUNDER) >= 2\nelse\n    thunderOk = countById(FAKE_THUNDER) >= 2 and countById(THUNDER_DANGER) >= 2\nend\n\nif not (iceOk and thunderOk) then\n    return\nend\n\n-- Build the callout.\nlocal call\nif ice and thunder then\n    call = \"Both real\"\nelseif not ice and not thunder then\n    call = \"Both fake\"\nelseif not ice then\n    call = \"Ice fake\"\nelse\n    call = \"Thunder fake\"\nend\n\nif AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(call, false, 5, false, 100)\nend\n\nself.used = true\n",
+				executeType = 2,
+				mechanicTime = 53.407,
+				name = "[MM2] Callout Safespot",
+				timeRange = true,
+				timelineIndex = 11,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "64fc4766-e3b6-9c50-94db-38a0da5095c9",
+				version = 2,
+			},
+			inheritedIndex = 3,
+		},
 		
 		{
 			data = 
@@ -339,17 +695,41 @@ local tbl =
 				{
 				},
 				eventType = 4,
-				execute = "-- [MM2] Callout Safespot\n-- OnEntityMarkerAdd\n-- Wait for 2 markers (Thunder/Ice true/false), then wait until every expected AOE has spawned\n-- and colour them: real AOEs solid red (avoid), fake + danger AOEs solid green (safe).\n\n-- Markers we gate on\nlocal THUNDER_TRUE    = 678\nlocal THUNDER_FALSE   = 677\nlocal ICE_TRUE        = 676\nlocal ICE_FALSE       = 675\nlocal WATCHED_MARKERS = {\n    [THUNDER_TRUE] = true,\n    [THUNDER_FALSE] = true,\n    [ICE_TRUE] = true,\n    [ICE_FALSE] = true,\n}\n\n-- AOE ids\nlocal REAL_ICE        = 47768\nlocal FAKE_ICE        = 47771\nlocal REAL_THUNDER    = 47775\nlocal FAKE_THUNDER    = 47776\nlocal THUNDER_DANGER  = 47777 -- spawns when thunder is fake\nlocal ICE_DANGER      = 47774 -- spawns when ice is fake\n\n-- Colour groups: real + danger variants are the actual damage zones (red, avoid);\n-- fake AOEs are the safe spots (green).\nlocal RED_IDS         = { [REAL_ICE] = true, [REAL_THUNDER] = true, [ICE_DANGER] = true, [THUNDER_DANGER] = true }\nlocal GREEN_IDS       = { [FAKE_ICE] = true, [FAKE_THUNDER] = true }\n\n-- ---------------------------------------------------------------------------\n-- Marker collection: wait until 2 of the watched markers have arrived\n-- ---------------------------------------------------------------------------\nlocal markerId        = eventArgs and tonumber(eventArgs.markerID)\nif not markerId or not WATCHED_MARKERS[markerId] then\n    return\nend\n\ndata.mm2Markers = data.mm2Markers or {}\ntable.insert(data.mm2Markers, markerId)\n\nif #data.mm2Markers < 2 then\n    return\nend\n\n-- ---------------------------------------------------------------------------\n-- Shape drawing + AOE gathering helpers\n-- ---------------------------------------------------------------------------\n-- Draw with Argus2 filled shapes. Default gradient intensity, but gradientMinOpacity = 1 so the\n-- fill stays fully opaque (doesn't fade out). Trailing args are positional: colorMid, delay,\n-- entityAttach, [targetAttach], [keepLength], colorOutline, outlineThickness, gradientIntensity,\n-- gradientMinOpacity.\nlocal MIN_OPACITY = 1\nlocal function drawShape(color, aoe)\n    if not Argus2 then return end\n    local ct  = tonumber(aoe.aoeCastType) or 0\n    local L   = tonumber(aoe.aoeLength) or 0\n    local W   = tonumber(aoe.aoeWidth) or 0\n    local h   = tonumber(aoe.heading) or 0\n    local ms  = 4700\n    local SEG = 48\n    if ct == 2 or ct == 5 or ct == 7 or ct == 6 then\n        Argus2.addTimedCircleFilled(ms, aoe.x, aoe.y, aoe.z, L, SEG, color, color, nil, 0, nil, nil, nil, 3, MIN_OPACITY)\n    elseif ct == 3 or ct == 13 then\n        Argus2.addTimedConeFilled(ms, aoe.x, aoe.y, aoe.z, L, math.rad(90), h, SEG, color, color, nil, 0, nil, nil, nil,\n            nil, 4, MIN_OPACITY)\n    elseif ct == 4 or ct == 12 or ct == 8 then\n        Argus2.addTimedRectFilled(ms, aoe.x, aoe.y, aoe.z, L, W, h, color, color, nil, 0, nil, nil, false, nil, nil, 4,\n            MIN_OPACITY)\n    elseif ct == 10 then\n        local inner = W > 0 and W or (L * 0.4)\n        Argus2.addTimedDonutFilled(ms, aoe.x, aoe.y, aoe.z, inner, L, SEG, color, color, nil, 0, nil, nil, nil, 2,\n            MIN_OPACITY)\n    elseif ct == 11 then\n        Argus2.addTimedCrossFilled(ms, aoe.x, aoe.y, aoe.z, L, W, h, color, color, nil, 0, nil, nil, nil, nil, 4,\n            MIN_OPACITY)\n    else\n        Argus2.addTimedCircleFilled(ms, aoe.x, aoe.y, aoe.z, (L > 0 and L or 3), SEG, color, color, nil, 0, nil, nil, nil,\n            3, MIN_OPACITY)\n    end\nend\n\nlocal function gatherAOEs()\n    local out = {}\n    if Argus then\n        if Argus.getCurrentGroundAOEs then\n            for _, a in pairs(Argus.getCurrentGroundAOEs() or {}) do out[#out + 1] = a end\n        end\n        if Argus.getCurrentDirectionalAOEs then\n            for _, a in pairs(Argus.getCurrentDirectionalAOEs(true) or {}) do out[#out + 1] = a end\n        end\n    end\n    return out\nend\n\n-- ---------------------------------------------------------------------------\n-- Work out which AOEs to expect from the markers (real -> real AOE only;\n-- fake -> fake AOE + its danger variant), then wait until they have all spawned.\n-- ---------------------------------------------------------------------------\nlocal expected = {}\nfor _, v in ipairs(data.mm2Markers) do\n    if v == THUNDER_TRUE then\n        expected[REAL_THUNDER] = true\n    elseif v == THUNDER_FALSE then\n        expected[FAKE_THUNDER] = true\n        expected[THUNDER_DANGER] = true\n    elseif v == ICE_TRUE then\n        expected[REAL_ICE] = true\n    elseif v == ICE_FALSE then\n        expected[FAKE_ICE] = true\n        expected[ICE_DANGER] = true\n    end\nend\n\nlocal allAoes = gatherAOEs()\nlocal present = {}\nfor _, a in ipairs(allAoes) do present[tonumber(a.aoeID)] = true end\n\n-- Returning without self.used keeps the reaction armed so it re-checks on the next marker event.\nfor id in pairs(expected) do\n    if not present[id] then\n        return\n    end\nend\n\n-- ---------------------------------------------------------------------------\n-- Draw: real + danger AOEs solid red, fake AOEs solid green\n-- ---------------------------------------------------------------------------\nlocal redSolid   = GUI:ColorConvertFloat4ToU32(1, 0, 0, 1)\nlocal greenSolid = GUI:ColorConvertFloat4ToU32(0, 1, 0, 1)\n\n-- Draw green (fake) first so red (real/danger) layers on top where they overlap.\nfor _, a in ipairs(allAoes) do\n    local id = tonumber(a.aoeID)\n    if GREEN_IDS[id] then\n        drawShape(greenSolid, a)\n    end\nend\nfor _, a in ipairs(allAoes) do\n    local id = tonumber(a.aoeID)\n    if RED_IDS[id] then\n        drawShape(redSolid, a)\n    end\nend\n\n-- Shotcall the ice/thunder real/fake combination.\nlocal iceReal, thunderReal\nfor _, v in ipairs(data.mm2Markers) do\n    if v == ICE_TRUE then\n        iceReal = true\n    elseif v == ICE_FALSE then\n        iceReal = false\n    elseif v == THUNDER_TRUE then\n        thunderReal = true\n    elseif v == THUNDER_FALSE then\n        thunderReal = false\n    end\nend\n\nlocal call\nif iceReal and thunderReal then\n    call = \"Both real\"\nelseif iceReal == false and thunderReal == false then\n    call = \"Both fake\"\nelseif iceReal and thunderReal == false then\n    call = \"Ice real, Thunder fake\"\nelseif iceReal == false and thunderReal then\n    call = \"Ice fake, Thunder real\"\nend\n\nif call and AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(call, false, 5, false, 100)\nend\n\ndata.mm2Markers = {}\nself.used = true\n",
+				execute = "-- [MM2] Draw Safespot\n-- Full-arena green circle with the danger zones carved out via FLAG_OCCLUDE, so only safe ground\n-- stays green. Read-only on data; bails until both kefka markers AND every expected AOE are present.\n--   ice real  -> subtract real ice  (47768); ice fake  -> subtract ice danger  (47774).\n--   thunder real -> subtract real thunder (47775); thunder fake -> subtract thunder danger (47777).\n\nlocal CENTER         = data.arenaCenter or { x = 100, y = 0, z = 100 }\nlocal ARENA_RADIUS   = data.arenaRadius or 20\nlocal SEG            = 50\n\nlocal ICE_TRUE       = 676 -- real ice\nlocal ICE_FALSE      = 675 -- fake ice\nlocal THUNDER_TRUE   = 678 -- real thunder\nlocal THUNDER_FALSE  = 677 -- fake thunder\n\nlocal REAL_ICE       = 47768\nlocal FAKE_ICE       = 47771\nlocal ICE_DANGER     = 47774\nlocal REAL_THUNDER   = 47775\nlocal FAKE_THUNDER   = 47776\nlocal THUNDER_DANGER = 47777\n\nif not (data.mm2AOEs and data.kefkaMarkers) then\n    return\nend\n\nlocal aoes  = data.mm2AOEs\nlocal kefka = data.kefkaMarkers\n\n-- Exactly the two kefka markers (one ice, one thunder).\nif #kefka ~= 2 then\n    return\nend\n\n-- Resolve ice/thunder: true = real, false = fake.\nlocal ice, thunder = nil, nil\nfor _, id in ipairs(kefka) do\n    if id == ICE_TRUE then\n        ice = true\n    elseif id == ICE_FALSE then\n        ice = false\n    elseif id == THUNDER_TRUE then\n        thunder = true\n    elseif id == THUNDER_FALSE then\n        thunder = false\n    end\nend\nif ice == nil or thunder == nil then\n    return\nend\n\n-- Verify every AOE that should have spawned is present (real = 2 danger; fake = 2 safe + 2 danger).\nlocal function countById(id)\n    local n = 0\n    for _, a in ipairs(aoes) do\n        if tonumber(a.aoeID) == id then n = n + 1 end\n    end\n    return n\nend\n\nlocal iceOk\nif ice then\n    iceOk = countById(REAL_ICE) >= 2\nelse\n    iceOk = countById(FAKE_ICE) >= 2 and countById(ICE_DANGER) >= 2\nend\n\nlocal thunderOk\nif thunder then\n    thunderOk = countById(REAL_THUNDER) >= 2\nelse\n    thunderOk = countById(FAKE_THUNDER) >= 2 and countById(THUNDER_DANGER) >= 2\nend\n\nif not (iceOk and thunderOk) then\n    return\nend\n\nif not (Argus2 and GUI and PerpCore and PerpCore.DrawAOEShape) then\n    return\nend\n\n-- Danger IDs to subtract from the green: real -> the real AOE, fake -> the danger AOE.\nlocal iceDanger     = ice and REAL_ICE or ICE_DANGER\nlocal thunderDanger = thunder and REAL_THUNDER or THUNDER_DANGER\n\n-- Match the draw lifetime to the danger AOEs (fallback 8s).\nlocal ms            = 0\nfor _, a in ipairs(aoes) do\n    local id = tonumber(a.aoeID)\n    if id == iceDanger or id == thunderDanger then\n        ms = math.max(ms, (tonumber(a.duration) or 6) * 1000)\n    end\nend\nif ms <= 0 then ms = 8000 end\n\n-- FLAG_OCCLUDE carves the draw out as negative space; FLAG_WARP_TERRAIN makes it follow the ground.\nlocal occlude = Argus2.RenderFlags.FLAG_OCCLUDE | Argus2.RenderFlags.FLAG_WARP_TERRAIN\nlocal green   = GUI:ColorConvertFloat4ToU32(0, 1, 0, 0.4)\n\n-- Full-arena green circle (solid fill), then subtract every danger AOE.\nArgus2.addTimedCircleFilled(ms, CENTER.x, CENTER.y, CENTER.z, ARENA_RADIUS, SEG, green, green, nil, 0, nil, nil, nil, 0)\n\nfor _, a in ipairs(aoes) do\n    local id = tonumber(a.aoeID)\n    if id == iceDanger or id == thunderDanger then\n        PerpCore.DrawAOEShape(green, a.x, a.y, a.z, a.aoeCastType, a.aoeLength, a.aoeWidth, a.heading, ms, occlude)\n    end\nend\n\nself.used = true\n",
 				executeType = 2,
-				mechanicTime = 49.422,
-				name = "[MM2] Callout Safespot",
+				mechanicTime = 53.407,
+				name = "[MM2] Draw Safespot",
 				timeRange = true,
-				timelineIndex = 10,
-				timerEndOffset = 10,
-				timerStartOffset = -5,
-				uuid = "c490d3ea-caae-a7fe-8859-9baa90462314",
+				timelineIndex = 11,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "802a9e54-7aa5-093e-a32e-cd22445efa45",
 				version = 2,
 			},
+			inheritedIndex = 5,
+		},
+	},
+	[12] = 
+	{
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+				},
+				conditions = 
+				{
+				},
+				execute = "-- [MM2] Cleanup\n-- Clear everything Mystery Magic 2 recorded/used so a later MM2 (or a fresh pull) starts clean.\n-- Setting to nil (not {}) lets the recorder reactions re-create the tables on their next event,\n-- and keeps the read-only Callout/Draw reactions bailing until data exists again.\ndata.mm2AOEs      = nil\ndata.kefkaMarkers = nil\n\nself.used         = true\n",
+				executeType = 2,
+				mechanicTime = 62.547,
+				name = "[MM2] Cleanup",
+				timelineIndex = 12,
+				uuid = "34ab4643-17e5-9726-b5fc-32779f43d09a",
+				version = 2,
+			},
+			inheritedIndex = 1,
 		},
 	},
 	[16] = 
@@ -365,7 +745,120 @@ local tbl =
 						data = 
 						{
 							aType = "Lua",
-							actionLua = "-- Graven 2 First Tethers\n-- OnTetherChange (tether id 45 checked by the reaction condition)\n-- Every living player is tethered (tether id 45) to one of two orb NPCs. Only 2 unique source\n-- positions exist; the higher orb is purple, the lower orb is yellow. The event can fire before\n-- both tethers exist, so we stay armed until both source positions are present, then draw a purple\n-- circle (6s) / yellow circle (10s) on every player and shotcall our own colour.\n\nlocal TETHER_ID     = 45\nlocal CIRCLE_RADIUS = 6\nlocal PURPLE_MS     = 9000\nlocal YELLOW_MS     = 13000\n\nif not (Argus and Argus.getTethersOnEnt and TensorCore and PerpCore) then\n    return\nend\n\nlocal party = PerpCore.GetPartyEntities() or {}\n\n-- Group players by their tether source position (4 share each of the 2 unique spots).\nlocal function posKey(p)\n    return string.format(\"%.1f_%.1f_%.1f\", p.x or 0, p.y or 0, p.z or 0)\nend\n\nlocal groups = {} -- key -> { y = sourceHeight, players = { ent, ... } }\nlocal order  = {} -- discovery order so we can iterate the groups\n\nfor _, member in ipairs(party) do\n    if member and member.id then\n        local tethers = Argus.getTethersOnEnt(member.id)\n        if tethers then\n            for i = 1, #tethers do\n                local t = tethers[i]\n                if tonumber(t.type) == TETHER_ID and t.partnerid then\n                    local src = TensorCore.mGetEntity(t.partnerid)\n                    if src and src.pos then\n                        local k = posKey(src.pos)\n                        local g = groups[k]\n                        if not g then\n                            g = { y = src.pos.y or 0, players = {} }\n                            groups[k] = g\n                            order[#order + 1] = g\n                        end\n                        g.players[#g.players + 1] = member\n                    end\n                    break\n                end\n            end\n        end\n    end\nend\n\n-- Stay armed until both unique source positions exist so we can tell purple (higher) from yellow (lower).\nif #order < 2 then\n    return\nend\n\n-- The source with the greatest height is the purple tether; everything else is yellow.\nlocal purpleGroup\nfor _, g in ipairs(order) do\n    if not purpleGroup or g.y > purpleGroup.y then\n        purpleGroup = g\n    end\nend\n\nlocal purple = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 0.4)\nlocal yellow = GUI:ColorConvertFloat4ToU32(1, 0.85, 0.1, 0.4)\nlocal purpleDrawer = TensorCore.getStaticDrawer(purple, 2)\nlocal yellowDrawer = TensorCore.getStaticDrawer(yellow, 2)\n\nlocal me = PerpCore.GetPlayer and PerpCore.GetPlayer(data.perspective)\nlocal myIsPurple\n\nfor _, g in ipairs(order) do\n    local isPurple = (g == purpleGroup)\n    local drawer = isPurple and purpleDrawer or yellowDrawer\n    local ms = isPurple and PURPLE_MS or YELLOW_MS\n    for _, member in ipairs(g.players) do\n        drawer:addTimedCircleOnEnt(ms, member.id, CIRCLE_RADIUS)\n        if me and member.id == me.id then\n            myIsPurple = isPurple\n        end\n    end\nend\n\n-- Shotcall our own tether colour.\nif myIsPurple ~= nil and AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(myIsPurple and \"Purple Tether\" or \"Yellow Tether\", false, 5, false, 100)\nend\n\nself.used = true\n",
+							actionLua = "data.kefkaMarkers = data.kefkaMarkers or {}\ntable.insert(data.kefkaMarkers, eventArgs.markerID)\nself.used = true\n",
+							conditions = 
+							{
+								
+								{
+									"b25bc53a-1a0e-571c-b497-99dc27eb57be",
+									true,
+								},
+							},
+							endIfUsed = true,
+							gVar = "ACR_RikuNIN3_CD",
+							uuid = "f2897081-a616-76a1-93c4-0550eaf77528",
+							version = 2.1,
+						},
+					},
+				},
+				conditions = 
+				{
+					
+					{
+						data = 
+						{
+							category = "Event",
+							eventArgType = 3,
+							markerIDList = 
+							{
+								675,
+								676,
+							},
+							name = "Is Kefka Marker",
+							uuid = "b25bc53a-1a0e-571c-b497-99dc27eb57be",
+							version = 3,
+						},
+					},
+				},
+				eventType = 4,
+				loop = true,
+				mechanicTime = 80.063,
+				name = "[Graven 2] Record Kefka Markers",
+				timeRange = true,
+				timelineIndex = 16,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "07dc0f4a-73b2-7119-9f66-f98795d25582",
+				version = 2,
+			},
+			inheritedIndex = 1,
+		},
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+					
+					{
+						data = 
+						{
+							aType = "Lua",
+							actionLua = "-- Record the full AOE data (not just the id) so Draw Safespot can re-draw / subtract the shapes.\ndata.graven2AOEs = data.graven2AOEs or {}\ntable.insert(data.graven2AOEs, {\n    aoeID       = eventArgs.aoeID,\n    x           = eventArgs.x,\n    y           = eventArgs.y,\n    z           = eventArgs.z,\n    aoeCastType = eventArgs.aoeCastType,\n    aoeLength   = eventArgs.aoeLength,\n    aoeWidth    = eventArgs.aoeWidth,\n    heading     = eventArgs.heading,\n    duration    = eventArgs.duration,\n})\nself.used = true\n",
+							conditions = 
+							{
+								
+								{
+									"c7b16078-69d7-b2f4-bcaa-0a4a119cc1ee",
+									true,
+								},
+							},
+							endIfUsed = true,
+							gVar = "ACR_RikuNIN3_CD",
+							uuid = "068dbd1e-2b92-03b7-b8c7-b79f959f3299",
+							version = 2.1,
+						},
+					},
+				},
+				conditions = 
+				{
+					
+					{
+						data = 
+						{
+							category = "Lua",
+							conditionLua = "return eventArgs.aoeID == 47771 or eventArgs.aoeID == 47768 or eventArgs.aoeID == 47774",
+							name = "Is Ice AOE",
+							uuid = "c7b16078-69d7-b2f4-bcaa-0a4a119cc1ee",
+							version = 3,
+						},
+					},
+				},
+				eventType = 18,
+				loop = true,
+				mechanicTime = 80.063,
+				name = "[Graven 2] Record AOEs",
+				timeRange = true,
+				timelineIndex = 16,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "331fa248-7598-dad5-9639-11a721f12707",
+				version = 2,
+			},
+			inheritedIndex = 2,
+		},
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+					
+					{
+						data = 
+						{
+							aType = "Lua",
+							actionLua = "-- Graven 2 Draw Tethers\n-- OnTetherChange (tether id 45 checked by the reaction condition)\n-- Handles both the first and second tether sets (identical logic). Every living player is tethered\n-- (tether id 45) to one of two orb NPCs. Only 2 unique source positions exist; the higher orb is\n-- purple, the lower orb is yellow. The event can fire before both tethers exist, so we stay armed\n-- until both source positions are present, then draw a purple/yellow circle on every player (with a\n-- countdown in the middle) and shotcall our own colour.\n\nlocal TETHER_ID     = 45\nlocal CIRCLE_RADIUS = 6\nlocal PURPLE_MS     = 6375\nlocal YELLOW_MS     = 10375\n\nif not (Argus and Argus.getTethersOnEnt and TensorCore and PerpCore) then\n    return\nend\n\nlocal party = PerpCore.GetPartyEntities() or {}\n\n-- Group players by their tether source position (4 share each of the 2 unique spots).\nlocal function posKey(p)\n    return string.format(\"%.1f_%.1f_%.1f\", p.x or 0, p.y or 0, p.z or 0)\nend\n\nlocal groups = {} -- key -> { y = sourceHeight, players = { ent, ... } }\nlocal order  = {} -- discovery order so we can iterate the groups\n\nfor _, member in ipairs(party) do\n    if member and member.id then\n        local tethers = Argus.getTethersOnEnt(member.id)\n        if tethers then\n            for i = 1, #tethers do\n                local t = tethers[i]\n                if tonumber(t.type) == TETHER_ID and t.partnerid then\n                    local src = TensorCore.mGetEntity(t.partnerid)\n                    if src and src.pos then\n                        local k = posKey(src.pos)\n                        local g = groups[k]\n                        if not g then\n                            g = { y = src.pos.y or 0, players = {} }\n                            groups[k] = g\n                            order[#order + 1] = g\n                        end\n                        g.players[#g.players + 1] = member\n                    end\n                    break\n                end\n            end\n        end\n    end\nend\n\n-- Stay armed until both unique source positions exist so we can tell purple (higher) from yellow (lower).\nif #order < 2 then\n    return\nend\n\n-- The source with the greatest height is the purple tether; everything else is yellow.\nlocal purpleGroup\nfor _, g in ipairs(order) do\n    if not purpleGroup or g.y > purpleGroup.y then\n        purpleGroup = g\n    end\nend\n\nlocal purple = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 0.4)\nlocal yellow = GUI:ColorConvertFloat4ToU32(1, 0.85, 0.1, 0.4)\nlocal white  = GUI:ColorConvertFloat4ToU32(1, 1, 1, 1)\nlocal purpleDrawer = TensorCore.getStaticDrawer(purple, 2)\nlocal yellowDrawer = TensorCore.getStaticDrawer(yellow, 2)\n\nlocal me = PerpCore.GetPlayer and PerpCore.GetPlayer(data.perspective)\nlocal myIsPurple\n\nfor _, g in ipairs(order) do\n    local isPurple = (g == purpleGroup)\n    local drawer = isPurple and purpleDrawer or yellowDrawer\n    local ms = isPurple and PURPLE_MS or YELLOW_MS\n    for _, member in ipairs(g.players) do\n        drawer:addTimedCircleOnEnt(ms, member.id, CIRCLE_RADIUS)\n        -- Countdown in the middle of the circle showing how long it lasts (white text, with background).\n        if AnyoneCore and AnyoneCore.addWorldTextCountdownOnEnt then\n            AnyoneCore.addWorldTextCountdownOnEnt(ms, member.id, white, true)\n        end\n        if me and member.id == me.id then\n            myIsPurple = isPurple\n        end\n    end\nend\n\n-- Shotcall our own tether colour.\nif myIsPurple ~= nil and AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(myIsPurple and \"Purple Tether\" or \"Yellow Tether\", false, 5, false, 100)\nend\n\nself.used = true\n",
 							conditions = 
 							{
 								
@@ -399,7 +892,7 @@ local tbl =
 				},
 				eventType = 15,
 				mechanicTime = 80.063,
-				name = "Graven 2 First Tethers",
+				name = "[Graven 2] Draw First Tethers",
 				timeRange = true,
 				timelineIndex = 16,
 				timerEndOffset = 10,
@@ -417,11 +910,33 @@ local tbl =
 				conditions = 
 				{
 				},
-				eventType = 4,
-				execute = "-- Graven 2 Safespot\n-- OnEntityMarkerAdd\n-- A single ice marker resolves the mechanic: Ice True (676) = outside cleave, Ice False (675) = inside.\n-- After the callout, highlight the ice safe spots in green via PerpCore.DrawAOESafespots: real ice\n-- (47768) are the danger zones (rotated 90 CW to the safe spots); fake ice (47771) are already safe.\n\nlocal ICE_TRUE  = 676\nlocal ICE_FALSE = 675\n\nlocal REAL_ICE  = 47768 -- danger zones -> rotate 90 CW to find the safe spots\nlocal FAKE_ICE  = 47771 -- already the safe spots -> draw as-is\n\nlocal marker    = eventArgs and eventArgs.markerID\n\nlocal ice\nif marker == ICE_TRUE then\n    ice = true\nelseif marker == ICE_FALSE then\n    ice = false\nend\n\n-- Stay armed until one of the ice markers shows up.\nif ice == nil then\n    return\nend\n\n-- Callout once. Ice true = outside cleave, ice false = inside cleave.\nif not data.graven2CalledOut then\n    if AnyoneCore and AnyoneCore.Shotcall then\n        AnyoneCore.Shotcall(ice and \"Outside Cleave\" or \"Inside Cleave\", false, 5, false, 100)\n    end\n    data.graven2CalledOut = true\nend\n\n-- Ice true = real ice (danger 47768, rotate to safe); ice false = fake ice (safe 47771, as-is).\nif not (PerpCore and PerpCore.DrawAOESafespots) then\n    return\nend\nlocal drawn = PerpCore.DrawAOESafespots({ aoeId = ice and REAL_ICE or FAKE_ICE, rotate = (ice == true) })\n\n-- Returning without self.used keeps the reaction armed so it re-checks on the next marker event.\nif drawn < 2 then\n    return\nend\n\ndata.graven2CalledOut = nil\nself.used = true\n",
+				execute = "-- Graven 2 Callout Safespot\n-- Resolves real/fake ice from the single kefka marker, then shotcalls the cleave position once.\n-- Read-only on data; bails until the kefka marker is present.\n--   ice true (676) = outside cleave; ice false (675) = inside cleave.\n\nlocal ICE_TRUE  = 676 -- real ice\nlocal ICE_FALSE = 675 -- fake ice\n\nif not data.kefkaMarkers then\n    return\nend\n\nlocal kefka = data.kefkaMarkers\n\nif #kefka < 1 then\n    return\nend\n\n-- Resolve ice: true = real, false = fake.\nlocal ice\nfor _, id in ipairs(kefka) do\n    if id == ICE_TRUE then\n        ice = true\n    elseif id == ICE_FALSE then\n        ice = false\n    end\nend\nif ice == nil then\n    return\nend\n\nif AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(ice and \"Outside Cleave\" or \"Inside Cleave\", false, 5, false, 100)\nend\n\nself.used = true\n",
 				executeType = 2,
 				mechanicTime = 80.063,
-				name = "Graven 2 Safespot",
+				name = "[Graven 2] Callout Safespot",
+				timeRange = true,
+				timelineIndex = 16,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "c9d2fc4f-0f4f-fcbc-a904-cd8ad8d35252",
+				version = 2,
+			},
+			inheritedIndex = 4,
+		},
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+				},
+				conditions = 
+				{
+				},
+				execute = "-- Graven 2 Draw Safespot\n-- Full-arena green circle with the danger zones carved out via FLAG_OCCLUDE, so only safe ground\n-- stays green. Read-only on data; bails until the kefka marker AND every expected AOE are present.\n--   ice real (676) -> subtract real ice    (47768), 2 AOEs.\n--   ice fake (675) -> subtract ice danger  (47774), 4 AOEs total.\n\nlocal CENTER       = data.arenaCenter or { x = 100, y = 0, z = 100 }\nlocal ARENA_RADIUS = data.arenaRadius or 20\nlocal SEG          = 50\n\nlocal ICE_TRUE     = 676  -- real ice\nlocal ICE_FALSE    = 675  -- fake ice\n\nlocal REAL_ICE     = 47768\nlocal ICE_DANGER   = 47774\n\nif not (data.graven2AOEs and data.kefkaMarkers) then\n    return\nend\n\nlocal aoes  = data.graven2AOEs\nlocal kefka = data.kefkaMarkers\n\n-- Need the single ice kefka marker.\nif #kefka < 1 then\n    return\nend\n\n-- Resolve ice: true = real, false = fake.\nlocal ice\nfor _, id in ipairs(kefka) do\n    if id == ICE_TRUE then\n        ice = true\n    elseif id == ICE_FALSE then\n        ice = false\n    end\nend\nif ice == nil then\n    return\nend\n\n-- Verify every expected AOE has spawned: real = 2, fake = 4.\nif ice then\n    if #aoes < 2 then return end\nelse\n    if #aoes < 4 then return end\nend\n\nif not (Argus2 and GUI and PerpCore and PerpCore.DrawAOEShape) then\n    return\nend\n\n-- Danger ID to subtract from the green: real -> real ice, fake -> ice danger.\nlocal dangerId = ice and REAL_ICE or ICE_DANGER\n\n-- Match the draw lifetime to the danger AOEs (fallback 8s).\nlocal ms = 0\nfor _, a in ipairs(aoes) do\n    if tonumber(a.aoeID) == dangerId then\n        ms = math.max(ms, (tonumber(a.duration) or 6) * 1000)\n    end\nend\nif ms <= 0 then ms = 8000 end\n\n-- FLAG_OCCLUDE carves the draw out as negative space; FLAG_WARP_TERRAIN makes it follow the ground.\nlocal occlude = Argus2.RenderFlags.FLAG_OCCLUDE | Argus2.RenderFlags.FLAG_WARP_TERRAIN\nlocal green   = GUI:ColorConvertFloat4ToU32(0, 1, 0, 0.4)\n\n-- Full-arena green circle (solid fill), then subtract every danger AOE.\nArgus2.addTimedCircleFilled(ms, CENTER.x, CENTER.y, CENTER.z, ARENA_RADIUS, SEG, green, green, nil, 0, nil, nil, nil, 0)\n\nfor _, a in ipairs(aoes) do\n    if tonumber(a.aoeID) == dangerId then\n        PerpCore.DrawAOEShape(green, a.x, a.y, a.z, a.aoeCastType, a.aoeLength, a.aoeWidth, a.heading, ms, occlude)\n    end\nend\n\nself.used = true\n",
+				executeType = 2,
+				mechanicTime = 80.063,
+				name = "[Graven 2] Draw Safespot",
 				timeRange = true,
 				timelineIndex = 16,
 				timerEndOffset = 10,
@@ -430,7 +945,7 @@ local tbl =
 			},
 		},
 	},
-	[18] = 
+	[17] = 
 	{
 		
 		{
@@ -442,19 +957,19 @@ local tbl =
 				conditions = 
 				{
 				},
-				eventType = 19,
-				execute = "-- Graven 2 Room Cleave\n-- OnEventObjectScript\n-- The cleaving orb is identified by its content id: yellow (2015165) cleaves the EAST half,\n-- purple (2015164) cleaves the WEST half. Draw a 180-degree cone from arena center that way.\n\nlocal YELLOW_CID = 2015165\nlocal PURPLE_CID = 2015164\nlocal CENTER     = { x = 100, y = 0, z = 100 }\nlocal RADIUS     = 40\nlocal DRAW_MS    = 8000\nlocal CONE_ANGLE = math.rad(180)\nlocal SEG        = 64\n\nlocal entId = eventArgs and (eventArgs.entityID or eventArgs.entityId)\nlocal ent   = entId and TensorCore.mGetEntity(entId)\nlocal cid   = ent and tonumber(ent.contentid)\n\n-- Stay armed until the cleaving orb (one of the two content ids) shows up.\nif cid ~= YELLOW_CID and cid ~= PURPLE_CID then\n    return\nend\n\nif not (Argus2 and TensorCore and GUI) then\n    self.used = true\n    return\nend\n\nlocal isYellow = (cid == YELLOW_CID)\n\n-- East = +x, West = -x. Use getHeadingToTarget so the heading matches the cone draw convention.\nlocal dirPoint = {\n    x = CENTER.x + (isYellow and 10 or -10),\n    y = CENTER.y,\n    z = CENTER.z,\n}\nlocal heading = TensorCore.getHeadingToTarget(CENTER, dirPoint)\n\nlocal fill, outline\nif isYellow then\n    fill    = GUI:ColorConvertFloat4ToU32(1, 0.85, 0.1, 0.4)\n    outline = GUI:ColorConvertFloat4ToU32(1, 0.85, 0.1, 1)\nelse\n    fill    = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 0.4)\n    outline = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 1)\nend\n\nArgus2.addTimedConeFilled(DRAW_MS, CENTER.x, CENTER.y, CENTER.z, RADIUS, CONE_ANGLE, heading, SEG, fill, outline)\n\nself.used = true\n",
+				execute = "-- [Graven 2] Cleanup\n-- Clear everything Graven 2 recorded/used so a later Graven 2 (or a fresh pull) starts clean.\n-- Setting to nil (not {}) lets the recorder reactions re-create the tables on their next event,\n-- and keeps the read-only Callout/Draw reactions bailing until data exists again.\ndata.graven2AOEs = nil\ndata.kefkaMarkers = nil\n\nself.used = true\n",
 				executeType = 2,
-				mechanicTime = 91.172,
-				name = "Graven 2 Room Cleave",
-				timeRange = true,
-				timelineIndex = 18,
-				timerEndOffset = 15,
-				uuid = "e72e90e5-d085-efa4-9b4b-713dbd093e1e",
+				mechanicTime = 87.219,
+				name = "[Graven 2] Cleanup",
+				timelineIndex = 17,
+				uuid = "cccc1be5-7e6d-9700-a333-3470f51da58c",
 				version = 2,
 			},
 			inheritedIndex = 1,
 		},
+	},
+	[18] = 
+	{
 		
 		{
 			data = 
@@ -466,7 +981,7 @@ local tbl =
 						data = 
 						{
 							aType = "Lua",
-							actionLua = "-- Graven 2 Second Tethers\n-- OnTetherChange (tether id 45 checked by the reaction condition)\n-- Same as Graven 2 First Tethers: every living player is tethered (tether id 45) to one of two orb\n-- NPCs. Only 2 unique source positions exist; the higher orb is purple, the lower orb is yellow.\n-- The event can fire before both tethers exist, so we stay armed until both source positions are\n-- present, then draw a purple circle (6s) / yellow circle (10s) on each player and shotcall our colour.\n\nlocal TETHER_ID     = 45\nlocal CIRCLE_RADIUS = 6\nlocal PURPLE_MS     = 9000\nlocal YELLOW_MS     = 13000\n\nif not (Argus and Argus.getTethersOnEnt and TensorCore and PerpCore) then\n    return\nend\n\nlocal party = PerpCore.GetPartyEntities() or {}\n\n-- Group players by their tether source position (4 share each of the 2 unique spots).\nlocal function posKey(p)\n    return string.format(\"%.1f_%.1f_%.1f\", p.x or 0, p.y or 0, p.z or 0)\nend\n\nlocal groups = {} -- key -> { y = sourceHeight, players = { ent, ... } }\nlocal order  = {} -- discovery order so we can iterate the groups\n\nfor _, member in ipairs(party) do\n    if member and member.id then\n        local tethers = Argus.getTethersOnEnt(member.id)\n        if tethers then\n            for i = 1, #tethers do\n                local t = tethers[i]\n                if tonumber(t.type) == TETHER_ID and t.partnerid then\n                    local src = TensorCore.mGetEntity(t.partnerid)\n                    if src and src.pos then\n                        local k = posKey(src.pos)\n                        local g = groups[k]\n                        if not g then\n                            g = { y = src.pos.y or 0, players = {} }\n                            groups[k] = g\n                            order[#order + 1] = g\n                        end\n                        g.players[#g.players + 1] = member\n                    end\n                    break\n                end\n            end\n        end\n    end\nend\n\n-- Stay armed until both unique source positions exist so we can tell purple (higher) from yellow (lower).\nif #order < 2 then\n    return\nend\n\n-- The source with the greatest height is the purple tether; everything else is yellow.\nlocal purpleGroup\nfor _, g in ipairs(order) do\n    if not purpleGroup or g.y > purpleGroup.y then\n        purpleGroup = g\n    end\nend\n\nlocal purple = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 0.4)\nlocal yellow = GUI:ColorConvertFloat4ToU32(1, 0.85, 0.1, 0.4)\nlocal purpleDrawer = TensorCore.getStaticDrawer(purple, 2)\nlocal yellowDrawer = TensorCore.getStaticDrawer(yellow, 2)\n\nlocal me = PerpCore.GetPlayer and PerpCore.GetPlayer(data.perspective)\nlocal myIsPurple\n\nfor _, g in ipairs(order) do\n    local isPurple = (g == purpleGroup)\n    local drawer = isPurple and purpleDrawer or yellowDrawer\n    local ms = isPurple and PURPLE_MS or YELLOW_MS\n    for _, member in ipairs(g.players) do\n        drawer:addTimedCircleOnEnt(ms, member.id, CIRCLE_RADIUS)\n        if me and member.id == me.id then\n            myIsPurple = isPurple\n        end\n    end\nend\n\n-- Shotcall our own tether colour.\nif myIsPurple ~= nil and AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(myIsPurple and \"Purple Tether\" or \"Yellow Tether\", false, 5, false, 100)\nend\n\nself.used = true\n",
+							actionLua = "-- Graven 2 Second Tethers\n-- OnTetherChange (tether id 45 checked by the reaction condition)\n-- Same as Graven 2 First Tethers but with the second set's timers. Every living player is tethered\n-- (tether id 45) to one of two orb NPCs. Only 2 unique source positions exist; the higher orb is\n-- purple, the lower orb is yellow. The event can fire before both tethers exist, so we stay armed\n-- until both source positions are present, then draw a purple/yellow circle on every player (with a\n-- countdown in the middle) and shotcall our own colour.\n\nlocal TETHER_ID     = 45\nlocal CIRCLE_RADIUS = 6\nlocal PURPLE_MS     = 8370\nlocal YELLOW_MS     = 12385\n\nif not (Argus and Argus.getTethersOnEnt and TensorCore and PerpCore) then\n    return\nend\n\nlocal party = PerpCore.GetPartyEntities() or {}\n\n-- Group players by their tether source position (4 share each of the 2 unique spots).\nlocal function posKey(p)\n    return string.format(\"%.1f_%.1f_%.1f\", p.x or 0, p.y or 0, p.z or 0)\nend\n\nlocal groups = {} -- key -> { y = sourceHeight, players = { ent, ... } }\nlocal order  = {} -- discovery order so we can iterate the groups\n\nfor _, member in ipairs(party) do\n    if member and member.id then\n        local tethers = Argus.getTethersOnEnt(member.id)\n        if tethers then\n            for i = 1, #tethers do\n                local t = tethers[i]\n                if tonumber(t.type) == TETHER_ID and t.partnerid then\n                    local src = TensorCore.mGetEntity(t.partnerid)\n                    if src and src.pos then\n                        local k = posKey(src.pos)\n                        local g = groups[k]\n                        if not g then\n                            g = { y = src.pos.y or 0, players = {} }\n                            groups[k] = g\n                            order[#order + 1] = g\n                        end\n                        g.players[#g.players + 1] = member\n                    end\n                    break\n                end\n            end\n        end\n    end\nend\n\n-- Stay armed until both unique source positions exist so we can tell purple (higher) from yellow (lower).\nif #order < 2 then\n    return\nend\n\n-- The source with the greatest height is the purple tether; everything else is yellow.\nlocal purpleGroup\nfor _, g in ipairs(order) do\n    if not purpleGroup or g.y > purpleGroup.y then\n        purpleGroup = g\n    end\nend\n\nlocal purple = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 0.4)\nlocal yellow = GUI:ColorConvertFloat4ToU32(1, 0.85, 0.1, 0.4)\nlocal white  = GUI:ColorConvertFloat4ToU32(1, 1, 1, 1)\nlocal purpleDrawer = TensorCore.getStaticDrawer(purple, 2)\nlocal yellowDrawer = TensorCore.getStaticDrawer(yellow, 2)\n\nlocal me = PerpCore.GetPlayer and PerpCore.GetPlayer(data.perspective)\nlocal myIsPurple\n\nfor _, g in ipairs(order) do\n    local isPurple = (g == purpleGroup)\n    local drawer = isPurple and purpleDrawer or yellowDrawer\n    local ms = isPurple and PURPLE_MS or YELLOW_MS\n    for _, member in ipairs(g.players) do\n        drawer:addTimedCircleOnEnt(ms, member.id, CIRCLE_RADIUS)\n        -- Countdown in the middle of the circle showing how long it lasts (white text, with background).\n        if AnyoneCore and AnyoneCore.addWorldTextCountdownOnEnt then\n            AnyoneCore.addWorldTextCountdownOnEnt(ms, member.id, white, true)\n        end\n        if me and member.id == me.id then\n            myIsPurple = isPurple\n        end\n    end\nend\n\n-- Shotcall our own tether colour.\nif myIsPurple ~= nil and AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(myIsPurple and \"Purple Tether\" or \"Yellow Tether\", false, 5, false, 100)\nend\n\nself.used = true\n",
 							conditions = 
 							{
 								
@@ -500,7 +1015,7 @@ local tbl =
 				},
 				eventType = 15,
 				mechanicTime = 91.172,
-				name = "Graven 2 Second Tethers",
+				name = "[Graven 2] Draw Second Tethers",
 				timeRange = true,
 				timelineIndex = 18,
 				timerEndOffset = 15,
@@ -510,7 +1025,7 @@ local tbl =
 			},
 		},
 	},
-	[20] = 
+	[21] = 
 	{
 		
 		{
@@ -523,15 +1038,42 @@ local tbl =
 				{
 				},
 				eventType = 19,
-				execute = "-- Graven 2 Room Cleave 2\n-- OnEventObjectScript\n-- The cleaving orb is identified by its content id: yellow (2015165) cleaves the EAST half,\n-- purple (2015164) cleaves the WEST half. Draw a 180-degree cone from arena center that way.\n\nlocal YELLOW_CID = 2015165\nlocal PURPLE_CID = 2015164\nlocal CENTER     = { x = 100, y = 0, z = 100 }\nlocal RADIUS     = 40\nlocal DRAW_MS    = 8000\nlocal CONE_ANGLE = math.rad(180)\nlocal SEG        = 64\n\nlocal entId = eventArgs and (eventArgs.entityID or eventArgs.entityId)\nlocal ent   = entId and TensorCore.mGetEntity(entId)\nlocal cid   = ent and tonumber(ent.contentid)\n\n-- Stay armed until the cleaving orb (one of the two content ids) shows up.\nif cid ~= YELLOW_CID and cid ~= PURPLE_CID then\n    return\nend\n\nif not (Argus2 and TensorCore and GUI) then\n    self.used = true\n    return\nend\n\nlocal isYellow = (cid == YELLOW_CID)\n\n-- East = +x, West = -x. Use getHeadingToTarget so the heading matches the cone draw convention.\nlocal dirPoint = {\n    x = CENTER.x + (isYellow and 10 or -10),\n    y = CENTER.y,\n    z = CENTER.z,\n}\nlocal heading = TensorCore.getHeadingToTarget(CENTER, dirPoint)\n\nlocal fill, outline\nif isYellow then\n    fill    = GUI:ColorConvertFloat4ToU32(1, 0.85, 0.1, 0.4)\n    outline = GUI:ColorConvertFloat4ToU32(1, 0.85, 0.1, 1)\nelse\n    fill    = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 0.4)\n    outline = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 1)\nend\n\nArgus2.addTimedConeFilled(DRAW_MS, CENTER.x, CENTER.y, CENTER.z, RADIUS, CONE_ANGLE, heading, SEG, fill, outline)\n\nself.used = true\n",
+				execute = "-- Graven 2 Room Cleave\n-- OnEventObjectScript\n-- The cleaving orb is identified by its content id: yellow (2015165) cleaves the EAST half,\n-- purple (2015164) cleaves the WEST half. Draw a 180-degree cone from arena center that way.\n\nlocal YELLOW_CID = 2015165\nlocal PURPLE_CID = 2015164\nlocal CENTER     = { x = 100, y = 0, z = 100 }\nlocal RADIUS     = 40\nlocal DRAW_MS    = 5135\nlocal CONE_ANGLE = math.rad(180)\nlocal SEG        = 64\n\nlocal entId = eventArgs and (eventArgs.entityID or eventArgs.entityId)\nlocal ent   = entId and TensorCore.mGetEntity(entId)\nlocal cid   = ent and tonumber(ent.contentid)\n\n-- Stay armed until the cleaving orb (one of the two content ids) shows up.\nif cid ~= YELLOW_CID and cid ~= PURPLE_CID then\n    return\nend\n\nif not (Argus2 and TensorCore and GUI) then\n    self.used = true\n    return\nend\n\nlocal isYellow = (cid == YELLOW_CID)\n\n-- East = +x, West = -x. Use getHeadingToTarget so the heading matches the cone draw convention.\nlocal dirPoint = {\n    x = CENTER.x + (isYellow and 10 or -10),\n    y = CENTER.y,\n    z = CENTER.z,\n}\nlocal heading = TensorCore.getHeadingToTarget(CENTER, dirPoint)\n\nlocal fill, outline\nif isYellow then\n    fill    = GUI:ColorConvertFloat4ToU32(1, 0.85, 0.1, 0.4)\n    outline = GUI:ColorConvertFloat4ToU32(1, 0.85, 0.1, 1)\nelse\n    fill    = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 0.4)\n    outline = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 1)\nend\n\nArgus2.addTimedConeFilled(DRAW_MS, CENTER.x, CENTER.y, CENTER.z, RADIUS, CONE_ANGLE, heading, SEG, fill, outline)\n\nself.used = true\n",
 				executeType = 2,
-				mechanicTime = 100.233,
-				name = "Graven 2 Room Cleave 2",
+				mechanicTime = 100.999,
+				name = "[Graven 2] Draw Room Cleave",
 				timeRange = true,
-				timelineIndex = 20,
-				timerEndOffset = 15,
-				timerStartOffset = 5,
-				uuid = "41c0b352-c6d4-1025-b26e-63b6d871f90c",
+				timelineIndex = 21,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "2aea1ea3-0ada-c6ac-b05f-aaba445581fb",
+				version = 2,
+			},
+			inheritedIndex = 1,
+		},
+	},
+	[24] = 
+	{
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+				},
+				conditions = 
+				{
+				},
+				eventType = 19,
+				execute = "-- Graven 2 Room Cleave 2\n-- OnEventObjectScript\n-- The cleaving orb is identified by its content id: yellow (2015165) cleaves the EAST half,\n-- purple (2015164) cleaves the WEST half. Draw a 180-degree cone from arena center that way.\n\nlocal YELLOW_CID = 2015165\nlocal PURPLE_CID = 2015164\nlocal CENTER     = { x = 100, y = 0, z = 100 }\nlocal RADIUS     = 40\nlocal DRAW_MS    = 5135\nlocal CONE_ANGLE = math.rad(180)\nlocal SEG        = 64\n\nlocal entId = eventArgs and (eventArgs.entityID or eventArgs.entityId)\nlocal ent   = entId and TensorCore.mGetEntity(entId)\nlocal cid   = ent and tonumber(ent.contentid)\n\n-- Stay armed until the cleaving orb (one of the two content ids) shows up.\nif cid ~= YELLOW_CID and cid ~= PURPLE_CID then\n    return\nend\n\nif not (Argus2 and TensorCore and GUI) then\n    self.used = true\n    return\nend\n\nlocal isYellow = (cid == YELLOW_CID)\n\n-- East = +x, West = -x. Use getHeadingToTarget so the heading matches the cone draw convention.\nlocal dirPoint = {\n    x = CENTER.x + (isYellow and 10 or -10),\n    y = CENTER.y,\n    z = CENTER.z,\n}\nlocal heading = TensorCore.getHeadingToTarget(CENTER, dirPoint)\n\nlocal fill, outline\nif isYellow then\n    fill    = GUI:ColorConvertFloat4ToU32(1, 0.85, 0.1, 0.4)\n    outline = GUI:ColorConvertFloat4ToU32(1, 0.85, 0.1, 1)\nelse\n    fill    = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 0.4)\n    outline = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 1)\nend\n\nArgus2.addTimedConeFilled(DRAW_MS, CENTER.x, CENTER.y, CENTER.z, RADIUS, CONE_ANGLE, heading, SEG, fill, outline)\n\nself.used = true\n",
+				executeType = 2,
+				mechanicTime = 114.171,
+				name = "[Graven 2] Draw Room Cleave 2",
+				timeRange = true,
+				timelineIndex = 24,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "9fbf26c3-6bbe-18b7-a37f-7cf5ed9933f3",
 				version = 2,
 			},
 			inheritedIndex = 1,
@@ -549,14 +1091,15 @@ local tbl =
 				conditions = 
 				{
 				},
-				execute = "-- Confetti Reminder\n-- OnUpdate\n-- When a player's Confetti (5078) has <= 5s left, draw a purple circle on them. If it's us, also\n-- shotcall \"Knockback Party\". Resolve (self.used) once we've drawn.\n\nlocal CONFETTI      = 5078\nlocal CIRCLE_RADIUS = 6\n\nlocal party = PerpCore.GetPartyEntities() or {}\nlocal me = PerpCore.GetPlayer(data.perspective)\n\nlocal purple = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 0.4)\nlocal drawer = TensorCore.getStaticDrawer(purple, 2)\n\nlocal drewAny = false\nlocal iHaveIt = false\n\nfor _, ent in ipairs(party) do\n    if ent and ent.id and ent.buffs then\n        local duration\n        for _, b in pairs(ent.buffs) do\n            if b and tonumber(b.id) == CONFETTI then\n                duration = tonumber(b.duration) or 0\n                break\n            end\n        end\n        if duration and duration <= 5 then\n            drawer:addTimedCircleOnEnt(duration * 1000, ent.id, CIRCLE_RADIUS)\n            drewAny = true\n            if me and ent.id == me.id then\n                iHaveIt = true\n            end\n        end\n    end\nend\n\n-- Nothing in the reminder window yet, keep waiting.\nif not drewAny then\n    return\nend\n\nif iHaveIt and AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(\"Knockback Party\", false, 5, false, 100)\nend\n\nself.used = true\n",
+				execute = "-- Confetti Reminder\n-- OnUpdate\n-- Once ANY player's Confetti (5078) is down to <= 5s, draw a purple circle on EVERY player who has\n-- the debuff (not just the ones already at <= 5s) so a slight timer skew doesn't drop a circle.\n-- If we have it, also shotcall \"Knockback Party\". Resolve (self.used) once we've drawn.\n\nlocal CONFETTI      = 5078\nlocal CIRCLE_RADIUS = 6\n\nlocal party = PerpCore.GetPartyEntities() or {}\nlocal me = PerpCore.GetPlayer(data.perspective)\n\n-- Collect everyone who currently has Confetti and their remaining duration.\nlocal holders = {}\nlocal triggered = false\nfor _, ent in ipairs(party) do\n    if ent and ent.id and ent.buffs then\n        for _, b in pairs(ent.buffs) do\n            if b and tonumber(b.id) == CONFETTI then\n                local duration = tonumber(b.duration) or 0\n                holders[#holders + 1] = { ent = ent, duration = duration }\n                if duration <= 5 then\n                    triggered = true\n                end\n                break\n            end\n        end\n    end\nend\n\n-- Nobody is in the reminder window yet, keep waiting.\nif not triggered then\n    return\nend\n\nlocal purple = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 0.4)\nlocal white  = GUI:ColorConvertFloat4ToU32(1, 1, 1, 1)\nlocal drawer = TensorCore.getStaticDrawer(purple, 2)\n\nlocal iHaveIt = false\nfor _, h in ipairs(holders) do\n    local ms = h.duration * 1000\n    drawer:addTimedCircleOnEnt(ms, h.ent.id, CIRCLE_RADIUS)\n    -- Countdown in the middle of the circle showing how long it lasts (white text, with background).\n    if AnyoneCore and AnyoneCore.addWorldTextCountdownOnEnt then\n        AnyoneCore.addWorldTextCountdownOnEnt(ms, h.ent.id, white, true)\n    end\n    if me and h.ent.id == me.id then\n        iHaveIt = true\n    end\nend\n\nif iHaveIt and AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(\"Knockback Party\", false, 5, false, 100)\nend\n\nself.used = true\n",
 				executeType = 2,
 				mechanicTime = 117.905,
 				name = "Confetti Reminder",
 				timeRange = true,
 				timelineIndex = 25,
-				timerStartOffset = -10,
-				uuid = "1fadebb5-27d8-90f1-be00-9139cd7319d4",
+				timerEndOffset = 2.0999999046326,
+				timerStartOffset = -7.9000000953674,
+				uuid = "9a9702a7-c42d-0039-a164-a706cc4d626b",
 				version = 2,
 			},
 		},
@@ -577,7 +1120,7 @@ local tbl =
 				execute = "-- Teleport Callout\n-- OnNewBuffEntry\n-- We get two teleport (Tele-portent) buffs. Each id maps to a direction. OnNewBuffEntry gives an\n-- unreliable entityID, so \"is it me\" is answered by reading our own buffs. Wait until we hold\n-- exactly two teleport buffs, then call them out in resolve order (lowest duration first).\n\nlocal DIRECTIONS = {\n    [4876] = \"Up\",    [5079] = \"Up\",\n    [4877] = \"Down\",  [5080] = \"Down\",\n    [4879] = \"Left\",  [5082] = \"Left\",\n    [4878] = \"Right\", [5081] = \"Right\",\n}\n\nlocal me = PerpCore and PerpCore.GetPlayer and PerpCore.GetPlayer(data.perspective)\nif not me or not me.buffs then\n    return\nend\n\n-- Collect our own teleport buffs (keep duplicates -- e.g. two \"Up\" -> \"Up -> Up\").\nlocal mine = {}\nfor _, b in pairs(me.buffs) do\n    local id = b and tonumber(b.id)\n    local dir = id and DIRECTIONS[id]\n    if dir then\n        mine[#mine + 1] = { dir = dir, duration = tonumber(b.duration) or 0 }\n    end\nend\n\n-- Stay armed until we have both teleport buffs.\nif #mine < 2 then\n    return\nend\n\n-- Lowest duration resolves first.\ntable.sort(mine, function(a, b) return a.duration < b.duration end)\n\nlocal callout = mine[1].dir .. \" -> \" .. mine[2].dir\nif AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(callout, false, 5, false, 100)\nend\n\n-- Hand off the resolve-ordered pair to \"Draw Teleport Spots\".\ndata.teleportPlacements = { mine[1].dir, mine[2].dir }\n\nself.used = true\n",
 				executeType = 2,
 				mechanicTime = 151.202,
-				name = "Teleport Callout",
+				name = "[Arrows] Callout Debuffs",
 				timeRange = true,
 				timelineIndex = 31,
 				timerEndOffset = 10,
@@ -598,7 +1141,7 @@ local tbl =
 				execute = "-- Draw Teleport Spots\n-- Follow-up to \"Teleport Callout\". That reaction stores our resolve-ordered arrow pair in\n-- data.teleportPlacements (e.g. { \"Right\", \"Up\" }). Here we map that pair to one of the four\n-- intercardinals, find the nearest numbered ground marker, and draw the 4 arrow-spots (2x2)\n-- that resolve there -- our two in green, the other group's two in gray.\n\nlocal CENTER   = { x = 100, y = 0, z = 100 }\nlocal PROBE    = 20 -- how far off-center we look to find the intercardinal marker\nlocal OFFSET   = 3  -- half the 4-yalm spacing between adjacent spots\nlocal DRAW_MS  = 15000\nlocal CIRCLE_R = 2\nlocal SEG      = 32\n\n-- Stay armed until Teleport Callout has handed us both directions.\nlocal tp       = data.teleportPlacements\nif not tp or #tp < 2 then\n    return\nend\n\nif not (Argus2 and TensorCore and GUI and PerpCore) then\n    return\nend\n\n-- Chosen strat (\"Default\" or \"X13\"), set from the PerpGUI Reactions tab.\nlocal strat = (PerpCore.GetDMUPhase1ArrowsStrat and PerpCore.GetDMUPhase1ArrowsStrat()) or \"Default\"\n\n-- Unordered pair (sorted) -> intercardinal. Reversible by construction.\nlocal function pairKey(a, b)\n    if a <= b then return a .. \"|\" .. b end\n    return b .. \"|\" .. a\nend\n\nlocal ZONE_BY_PAIR = {\n    [\"Left|Left\"] = \"NE\",\n    [\"Right|Up\"] = \"NE\",\n    [\"Up|Up\"] = \"SE\",\n    [\"Down|Right\"] = \"SE\",\n    [\"Right|Right\"] = \"SW\",\n    [\"Down|Left\"] = \"SW\",\n    [\"Down|Down\"] = \"NW\",\n    [\"Left|Up\"] = \"NW\",\n}\n\n-- Intercardinal unit offset from center: north = -Z, east = +X.\nlocal ZONE_DIR     = {\n    NE = { x = 1, z = -1 },\n    SE = { x = 1, z = 1 },\n    SW = { x = -1, z = 1 },\n    NW = { x = -1, z = -1 },\n}\n\n-- Per-zone 2x2 layout: which arrow sits at each corner (top = north, left = west).\n-- Decoded from the reference image; NE matches the explicit callout.\nlocal ZONE_LAYOUT  = {\n    NE = { TL = \"Left\", TR = \"Left\", BL = \"Right\", BR = \"Up\" },\n    NW = { TL = \"Down\", TR = \"Left\", BL = \"Down\", BR = \"Up\" },\n    SW = { TL = \"Down\", TR = \"Left\", BL = \"Right\", BR = \"Right\" },\n    SE = { TL = \"Down\", TR = \"Up\", BL = \"Right\", BR = \"Up\" },\n}\n\n-- Corner -> world offset (OFFSET yalms). top = -Z, left = -X.\nlocal CORNER_OFF   = {\n    TL = { x = -OFFSET, z = -OFFSET },\n    TR = { x = OFFSET, z = -OFFSET },\n    BL = { x = -OFFSET, z = OFFSET },\n    BR = { x = OFFSET, z = OFFSET },\n}\n\n-- Direction -> world offset used to compute the arrow heading (where it points).\nlocal DIR_POINT    = {\n    Up    = { x = 0, z = -10 },\n    Down  = { x = 0, z = 10 },\n    Left  = { x = -10, z = 0 },\n    Right = { x = 10, z = 0 },\n}\n\nlocal key          = pairKey(tp[1], tp[2])\nlocal zone         = ZONE_BY_PAIR[key]\nif not zone then\n    return\nend\n\n-- Default: probe toward the zone, snap to the nearest waymark, lay a tight 2x2 around it.\nlocal function buildDefaultCorners()\n    local zd = ZONE_DIR[zone]\n    local probePos = { x = CENTER.x + zd.x * PROBE, y = CENTER.y, z = CENTER.z + zd.z * PROBE }\n    local marker = PerpCore.GetWaymarkClosestToEntity(probePos)\n    if not marker then\n        return nil\n    end\n    local out = {}\n    for _, c in ipairs({ \"TL\", \"TR\", \"BL\", \"BR\" }) do\n        local co = CORNER_OFF[c]\n        out[c] = { x = marker.x + co.x, y = marker.y, z = marker.z + co.z }\n    end\n    return out\nend\n\n-- X13: two anchor waymarks per zone, each fixed to one corner (the two known diagonal corners).\nlocal ZONE_ANCHORS = {\n    NE = { { mark = \"B\", corner = \"BL\" }, { mark = \"2\", corner = \"TR\" } },\n    SE = { { mark = \"C\", corner = \"TL\" }, { mark = \"3\", corner = \"BR\" } },\n    NW = { { mark = \"A\", corner = \"BR\" }, { mark = \"1\", corner = \"TL\" } },\n    SW = { { mark = \"D\", corner = \"TR\" }, { mark = \"4\", corner = \"BL\" } },\n}\n\n-- Rotating a known corner 90 degrees clockwise about the midpoint lands on this corner.\nlocal CW_NEXT = { TL = \"TR\", TR = \"BR\", BR = \"BL\", BL = \"TL\" }\n\n-- X13: place the two anchors, then fill the two blanks by rotating each anchor 90 CW about\n-- the midpoint of the anchor line. Returns nil if either waymark is missing/inactive.\nlocal function buildX13Corners()\n    local anchors = ZONE_ANCHORS[zone]\n    if not anchors then\n        return nil\n    end\n    local out = {}\n    for _, a in ipairs(anchors) do\n        local info = PerpCore.GetWaymarkInfo(a.mark)\n        if not info or not info.isActive then\n            return nil\n        end\n        out[a.corner] = { x = info.x, y = info.y, z = info.z }\n    end\n    local p1 = out[anchors[1].corner]\n    local p2 = out[anchors[2].corner]\n    local ox = (p1.x + p2.x) / 2\n    local oz = (p1.z + p2.z) / 2\n    -- Clockwise rotation about O in world axes (+X east, +Z south): (x,z) -> (-z, x).\n    for _, a in ipairs(anchors) do\n        local p = out[a.corner]\n        out[CW_NEXT[a.corner]] = {\n            x = ox - (p.z - oz),\n            y = p.y,\n            z = oz + (p.x - ox),\n        }\n    end\n    return out\nend\n\nlocal cornerPos\nif strat == \"X13\" then\n    cornerPos = buildX13Corners()\nend\nif not cornerPos then\n    cornerPos = buildDefaultCorners()\nend\nif not cornerPos then\n    return\nend\n\n-- Our placements in resolve order: tp[1] expires first (\"1\"), tp[2] second (\"2\").\nlocal ownOrder = {\n    { dir = tp[1], label = \"1\", used = false },\n    { dir = tp[2], label = \"2\", used = false },\n}\n\nlocal greenFill = GUI:ColorConvertFloat4ToU32(0, 1, 0, 0.30)\nlocal greenLine = GUI:ColorConvertFloat4ToU32(0, 1, 0, 1)\nlocal grayFill  = GUI:ColorConvertFloat4ToU32(0.55, 0.55, 0.55, 0.30)\nlocal grayLine  = GUI:ColorConvertFloat4ToU32(0.75, 0.75, 0.75, 1)\nlocal textColor = GUI:ColorConvertFloat4ToU32(1, 1, 1, 1)\n\nlocal layout    = ZONE_LAYOUT[zone]\nfor _, corner in ipairs({ \"TL\", \"TR\", \"BL\", \"BR\" }) do\n    local dir  = layout[corner]\n    local sp   = cornerPos[corner]\n    local sx   = sp.x\n    local sy   = sp.y\n    local sz   = sp.z\n\n    -- Ours = direction matches an unconsumed placement; grab its resolve-order label.\n    local label = nil\n    for _, o in ipairs(ownOrder) do\n        if not o.used and o.dir == dir then\n            o.used = true\n            label  = o.label\n            break\n        end\n    end\n    local mine = label ~= nil\n\n    local fill = mine and greenFill or grayFill\n    local line = mine and greenLine or grayLine\n\n    Argus2.addTimedCircleFilled(DRAW_MS, sx, sy, sz, CIRCLE_R, SEG, fill, line)\n\n    local dp = DIR_POINT[dir]\n    local heading = TensorCore.getHeadingToTarget(\n        { x = sx, y = sy, z = sz },\n        { x = sx + dp.x, y = sy, z = sz + dp.z }\n    )\n    -- addTimedArrowFilled draws from its origin along the heading, so push the origin back\n    -- half the length to center the arrow on the spot (edge to edge, short either side).\n    local ARROW_LEN = 2.0\n    local ux = dp.x / 10\n    local uz = dp.z / 10\n    local ax = sx - ux * (ARROW_LEN / 2)\n    local az = sz - uz * (ARROW_LEN / 2)\n    Argus2.addTimedArrowFilled(DRAW_MS, ax, sy, az, ARROW_LEN, 0.7, 0.6, 1.8, heading, fill, line)\n\n    -- Label our spots with their resolve order (1 = expires first).\n    if mine and AnyoneCore and AnyoneCore.addTimedWorldText then\n        AnyoneCore.addTimedWorldText(DRAW_MS, label, { x = sx, y = sy, z = sz }, textColor, true, 1.5)\n    end\nend\n\nself.used = true\n",
 				executeType = 2,
 				mechanicTime = 151.202,
-				name = "Draw Teleport Spots",
+				name = "[Arrows] Draw Teleport Spots",
 				throttleTime = 50,
 				timeRange = true,
 				timelineIndex = 31,
@@ -655,7 +1198,7 @@ local tbl =
 				},
 				eventType = 15,
 				mechanicTime = 163.327,
-				name = "Graven 3 Tethers",
+				name = "[Graven 3] Callout Tether",
 				randomOffset = 5,
 				timeRange = true,
 				timelineIndex = 34,
@@ -677,7 +1220,7 @@ local tbl =
 				conditions = 
 				{
 				},
-				execute = "-- Confetti Reminder\n-- OnUpdate\n-- When a player's Confetti (5078) has <= 5s left, draw a purple circle on them. If it's us, also\n-- shotcall \"Knockback Party\". Resolve (self.used) once we've drawn.\n\nlocal CONFETTI      = 5078\nlocal CIRCLE_RADIUS = 6\n\nlocal party = PerpCore.GetPartyEntities() or {}\nlocal me = PerpCore.GetPlayer(data.perspective)\n\nlocal purple = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 0.4)\nlocal drawer = TensorCore.getStaticDrawer(purple, 2)\n\nlocal drewAny = false\nlocal iHaveIt = false\n\nfor _, ent in ipairs(party) do\n    if ent and ent.id and ent.buffs then\n        local duration\n        for _, b in pairs(ent.buffs) do\n            if b and tonumber(b.id) == CONFETTI then\n                duration = tonumber(b.duration) or 0\n                break\n            end\n        end\n        if duration and duration <= 5 then\n            drawer:addTimedCircleOnEnt(duration * 1000, ent.id, CIRCLE_RADIUS)\n            drewAny = true\n            if me and ent.id == me.id then\n                iHaveIt = true\n            end\n        end\n    end\nend\n\n-- Nothing in the reminder window yet, keep waiting.\nif not drewAny then\n    return\nend\n\nif iHaveIt and AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(\"Knockback Party\", false, 5, false, 100)\nend\n\nself.used = true\n",
+				execute = "-- Confetti Reminder\n-- OnUpdate\n-- Once ANY player's Confetti (5078) is down to <= 5s, draw a purple circle on EVERY player who has\n-- the debuff (not just the ones already at <= 5s) so a slight timer skew doesn't drop a circle.\n-- If we have it, also shotcall \"Knockback Party\". Resolve (self.used) once we've drawn.\n\nlocal CONFETTI      = 5078\nlocal CIRCLE_RADIUS = 6\n\nlocal party = PerpCore.GetPartyEntities() or {}\nlocal me = PerpCore.GetPlayer(data.perspective)\n\n-- Collect everyone who currently has Confetti and their remaining duration.\nlocal holders = {}\nlocal triggered = false\nfor _, ent in ipairs(party) do\n    if ent and ent.id and ent.buffs then\n        for _, b in pairs(ent.buffs) do\n            if b and tonumber(b.id) == CONFETTI then\n                local duration = tonumber(b.duration) or 0\n                holders[#holders + 1] = { ent = ent, duration = duration }\n                if duration <= 5 then\n                    triggered = true\n                end\n                break\n            end\n        end\n    end\nend\n\n-- Nobody is in the reminder window yet, keep waiting.\nif not triggered then\n    return\nend\n\nlocal purple = GUI:ColorConvertFloat4ToU32(0.6, 0.1, 0.9, 0.4)\nlocal white  = GUI:ColorConvertFloat4ToU32(1, 1, 1, 1)\nlocal drawer = TensorCore.getStaticDrawer(purple, 2)\n\nlocal iHaveIt = false\nfor _, h in ipairs(holders) do\n    local ms = h.duration * 1000\n    drawer:addTimedCircleOnEnt(ms, h.ent.id, CIRCLE_RADIUS)\n    -- Countdown in the middle of the circle showing how long it lasts (white text, with background).\n    if AnyoneCore and AnyoneCore.addWorldTextCountdownOnEnt then\n        AnyoneCore.addWorldTextCountdownOnEnt(ms, h.ent.id, white, true)\n    end\n    if me and h.ent.id == me.id then\n        iHaveIt = true\n    end\nend\n\nif iHaveIt and AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(\"Knockback Party\", false, 5, false, 100)\nend\n\nself.used = true\n",
 				executeType = 2,
 				mechanicTime = 167.546,
 				name = "Confetti Reminder",
@@ -697,21 +1240,220 @@ local tbl =
 			{
 				actions = 
 				{
+					
+					{
+						data = 
+						{
+							aType = "Lua",
+							actionLua = "data.kefkaMarkers = data.kefkaMarkers or {}\ntable.insert(data.kefkaMarkers, eventArgs.markerID)\nself.used = true\n",
+							conditions = 
+							{
+								
+								{
+									"b25bc53a-1a0e-571c-b497-99dc27eb57be",
+									true,
+								},
+							},
+							endIfUsed = true,
+							gVar = "ACR_RikuNIN3_CD",
+							uuid = "f2897081-a616-76a1-93c4-0550eaf77528",
+							version = 2.1,
+						},
+					},
+				},
+				conditions = 
+				{
+					
+					{
+						data = 
+						{
+							category = "Event",
+							eventArgType = 3,
+							markerIDList = 
+							{
+								677,
+								678,
+								673,
+								674,
+							},
+							name = "Is Kefka Marker",
+							uuid = "b25bc53a-1a0e-571c-b497-99dc27eb57be",
+							version = 3,
+						},
+					},
+				},
+				eventType = 4,
+				loop = true,
+				mechanicTime = 185.952,
+				name = "[MM3] Record Kefka Markers",
+				timeRange = true,
+				timelineIndex = 37,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "a4857ff2-a17e-44a4-8e4b-475602ee67d2",
+				version = 2,
+			},
+			inheritedIndex = 1,
+		},
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+					
+					{
+						data = 
+						{
+							aType = "Lua",
+							actionLua = "data.partyMarkers = data.partyMarkers or {}\ntable.insert(data.partyMarkers, eventArgs.markerID)\nself.used = true\n",
+							conditions = 
+							{
+								
+								{
+									"2fc1ee6c-f0c4-ccb2-91c1-14b4bd600426",
+									true,
+								},
+							},
+							endIfUsed = true,
+							gVar = "ACR_RikuNIN3_CD",
+							uuid = "6c4dc328-d4d0-d4a1-b755-715a5d6952d9",
+							version = 2.1,
+						},
+					},
+				},
+				conditions = 
+				{
+					
+					{
+						data = 
+						{
+							category = "Event",
+							eventArgType = 3,
+							markerIDList = 
+							{
+								128,
+								127,
+							},
+							name = "Is Party Marker",
+							uuid = "2fc1ee6c-f0c4-ccb2-91c1-14b4bd600426",
+							version = 3,
+						},
+					},
+				},
+				eventType = 4,
+				loop = true,
+				mechanicTime = 185.952,
+				name = "[MM3] Record Party Markers",
+				timeRange = true,
+				timelineIndex = 37,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "5e0c9cb7-f375-b804-b50e-1979a2d23515",
+				version = 2,
+			},
+			inheritedIndex = 2,
+		},
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+					
+					{
+						data = 
+						{
+							aType = "Lua",
+							actionLua = "-- Record the full AOE data (not just the id) so Draw Safespot can re-draw / subtract the shapes.\ndata.mm3AOEs = data.mm3AOEs or {}\ntable.insert(data.mm3AOEs, {\n    aoeID       = eventArgs.aoeID,\n    x           = eventArgs.x,\n    y           = eventArgs.y,\n    z           = eventArgs.z,\n    aoeCastType = eventArgs.aoeCastType,\n    aoeLength   = eventArgs.aoeLength,\n    aoeWidth    = eventArgs.aoeWidth,\n    heading     = eventArgs.heading,\n    duration    = eventArgs.duration,\n})\nself.used = true\n",
+							conditions = 
+							{
+								
+								{
+									"c7b16078-69d7-b2f4-bcaa-0a4a119cc1ee",
+									true,
+								},
+							},
+							endIfUsed = true,
+							gVar = "ACR_RikuNIN3_CD",
+							uuid = "068dbd1e-2b92-03b7-b8c7-b79f959f3299",
+							version = 2.1,
+						},
+					},
+				},
+				conditions = 
+				{
+					
+					{
+						data = 
+						{
+							category = "Lua",
+							conditionLua = "return eventArgs.aoeID == 47775 or eventArgs.aoeID == 47776 or eventArgs.aoeID == 47777",
+							name = "Is Thunder AOE",
+							uuid = "c7b16078-69d7-b2f4-bcaa-0a4a119cc1ee",
+							version = 3,
+						},
+					},
+				},
+				eventType = 18,
+				loop = true,
+				mechanicTime = 185.952,
+				name = "[MM3] Record AOEs",
+				timeRange = true,
+				timelineIndex = 37,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "8972979d-b46d-e510-bac8-1334ceee1624",
+				version = 2,
+			},
+			inheritedIndex = 3,
+		},
+		
+		{
+			data = 
+			{
+				actions = 
+				{
 				},
 				conditions = 
 				{
 				},
-				eventType = 4,
-				execute = "-- [MM3] Callout Safespot\n-- OnEntityMarkerAdd\n-- Collect markers (min 4), resolve stack/spread + inside/outside cleave (thunder variant) and\n-- shotcall (once). Then highlight the thunder AOEs via PerpCore.DrawAOESafespots (no rotation):\n--   real thunder (47775)  -> two danger zones drawn red.\n--   fake thunder (47776)  -> two safe zones drawn green, plus two danger zones (47777) drawn red.\n\nlocal SPREAD_MARKER  = 127\nlocal STACK_MARKER   = 128 -- not strictly needed: anything that isn't spread is stack\nlocal FIRE_TRUE      = 674\nlocal FIRE_FALSE     = 673\nlocal THUNDER_TRUE   = 678\nlocal THUNDER_FALSE  = 677\n\nlocal REAL_THUNDER   = 47775 -- real thunder danger zones -> red\nlocal FAKE_THUNDER   = 47776 -- fake thunder safe zones -> green\nlocal THUNDER_DANGER = 47777 -- spawns alongside fake thunder -> red\n\ndata.mm3Markers = data.mm3Markers or {}\ntable.insert(data.mm3Markers, eventArgs.markerID)\n\n-- Wait until at least 4 markers have arrived\nif #data.mm3Markers < 4 then\n    return\nend\n\n-- Scan collected markers\nlocal hasSpread, fire, thunder = false, nil, nil\nfor _, id in ipairs(data.mm3Markers) do\n    if id == SPREAD_MARKER then hasSpread = true end\n    if id == FIRE_TRUE     then fire = true end\n    if id == FIRE_FALSE    then fire = false end\n    if id == THUNDER_TRUE  then thunder = true end\n    if id == THUNDER_FALSE then thunder = false end\nend\n\n-- Need both fire and thunder resolved before we can call\nif fire == nil or thunder == nil then\n    return\nend\n\n-- Callout once. Markers resolve independently of (and usually before) the AOEs spawning, so we\n-- fire the shotcall immediately and gate only the drawing on the AOEs below.\nif not data.mm3CalledOut then\n    local mechanic = hasSpread and \"Spread\" or \"Stack\"\n    -- Fire false inverts the mechanic\n    if not fire then\n        mechanic = (mechanic == \"Spread\") and \"Stack\" or \"Spread\"\n    end\n    -- Thunder true = outside cleave, thunder false = inside cleave\n    local cleave = thunder and \"outside\" or \"inside\"\n    local shotcall = mechanic .. \" \" .. cleave .. \" cleave\"\n    if AnyoneCore and AnyoneCore.Shotcall then\n        AnyoneCore.Shotcall(shotcall, false, 5, false, 100)\n    end\n    data.mm3CalledOut = true\nend\n\n-- Draw the thunder AOEs in place (no rotation), recoloured.\nif not (PerpCore and PerpCore.DrawAOESafespots and GUI) then\n    return\nend\nlocal red   = GUI:ColorConvertFloat4ToU32(1, 0, 0, 1)\nlocal green = GUI:ColorConvertFloat4ToU32(0, 1, 0, 1)\n\nif thunder then\n    -- Real thunder: two 47775 danger zones drawn red. Stay armed until both have spawned.\n    if #PerpCore.GetActiveAOEsById(REAL_THUNDER) < 2 then\n        return\n    end\n    PerpCore.DrawAOESafespots({ aoeId = REAL_THUNDER, color = red })\nelse\n    -- Fake thunder: two 47776 safe zones (green) + two 47777 danger zones (red).\n    if #PerpCore.GetActiveAOEsById(FAKE_THUNDER) < 2 or #PerpCore.GetActiveAOEsById(THUNDER_DANGER) < 2 then\n        return\n    end\n    PerpCore.DrawAOESafespots({ aoeId = FAKE_THUNDER, color = green })\n    PerpCore.DrawAOESafespots({ aoeId = THUNDER_DANGER, color = red })\nend\n\ndata.mm3Markers   = {}\ndata.mm3CalledOut = nil\nself.used = true\n",
+				execute = "-- [MM3] Callout Safespot\n-- Resolves stack/spread + inside/outside cleave from the recorded markers and shotcalls once.\n-- Stays armed until every condition is met: exactly 2 kefka markers and at least 1 party marker.\n--   Kefka markers carry one fire (674 true / 673 false) and one thunder (678 true / 677 false).\n--   A party spread marker (127) = spread, stack marker (128) = stack -- but fire false flips it.\n--   Thunder true = outside cleave, thunder false = inside cleave.\n\nlocal FIRE_TRUE     = 674\nlocal FIRE_FALSE    = 673\nlocal THUNDER_TRUE  = 678\nlocal THUNDER_FALSE = 677\nlocal SPREAD_MARKER = 127\n\n-- Read-only: bail until the recorder reactions have created both tables. Do NOT initialise them\n-- here -- this runs on OnUpdate and must never race/clobber the data the recorders own.\nif not (data.kefkaMarkers and data.partyMarkers) then\n    return\nend\n\nlocal kefka = data.kefkaMarkers\nlocal party = data.partyMarkers\n\n-- Conditions: exactly 2 kefka markers (fire + thunder) and at least 1 party marker.\nif not (#kefka == 2 and #party >= 1) then\n    return\nend\n\n-- Resolve fire + thunder from the kefka markers.\nlocal fire, thunder = nil, nil\nfor _, id in ipairs(kefka) do\n    if id == FIRE_TRUE then fire = true\n    elseif id == FIRE_FALSE then fire = false\n    elseif id == THUNDER_TRUE then thunder = true\n    elseif id == THUNDER_FALSE then thunder = false end\nend\nif fire == nil or thunder == nil then\n    return\nend\n\n-- Spread vs stack from the party markers (anything that isn't spread is treated as stack).\nlocal hasSpread = false\nfor _, id in ipairs(party) do\n    if id == SPREAD_MARKER then hasSpread = true end\nend\n\nlocal mechanic = hasSpread and \"Spread\" or \"Stack\"\n-- Fire false inverts the mechanic.\nif not fire then\n    mechanic = (mechanic == \"Spread\") and \"Stack\" or \"Spread\"\nend\n\nlocal cleave = thunder and \"outside\" or \"inside\"\nlocal shotcall = mechanic .. \" \" .. cleave .. \" cleave\"\nif AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(shotcall, false, 5, false, 100)\nend\n\nself.used = true\n",
 				executeType = 2,
 				mechanicTime = 185.952,
 				name = "[MM3] Callout Safespot",
 				timeRange = true,
 				timelineIndex = 37,
+				timerEndOffset = 5,
 				timerStartOffset = -10,
-				uuid = "55200e52-ca1d-f763-b0a3-0d597580f834",
+				uuid = "b5170807-1c5f-f2cb-9d1d-76ebc9b11f2b",
 				version = 2,
 			},
+			inheritedIndex = 4,
+		},
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+				},
+				conditions = 
+				{
+				},
+				eventType = 4,
+				execute = "-- [MM3] Draw Safespot\n-- Full-arena green circle with the thunder danger zones carved out via FLAG_OCCLUDE, so only safe\n-- ground stays green. Read-only on data; bails until 2 kefka markers, >=1 party marker AND every\n-- expected thunder AOE are present.\n--   thunder real (678) -> subtract real thunder   (47775), 2 AOEs.\n--   thunder fake (677) -> subtract thunder danger (47777), 4 AOEs total.\n\nlocal CENTER         = data.arenaCenter or { x = 100, y = 0, z = 100 }\nlocal ARENA_RADIUS   = data.arenaRadius or 20\nlocal SEG            = 50\n\nlocal THUNDER_TRUE   = 678 -- real thunder\nlocal THUNDER_FALSE  = 677 -- fake thunder\n\nlocal REAL_THUNDER   = 47775\nlocal FAKE_THUNDER   = 47776\nlocal THUNDER_DANGER = 47777\n\nif not (data.mm3AOEs and data.kefkaMarkers and data.partyMarkers) then\n    return\nend\n\nlocal aoes  = data.mm3AOEs\nlocal kefka = data.kefkaMarkers\nlocal party = data.partyMarkers\n\n-- Conditions: exactly 2 kefka markers (fire + thunder) and at least 1 party marker.\nif not (#kefka == 2 and #party >= 1) then\n    return\nend\n\n-- Resolve thunder: true = real, false = fake (fire markers are ignored here).\nlocal thunder\nfor _, id in ipairs(kefka) do\n    if id == THUNDER_TRUE then\n        thunder = true\n    elseif id == THUNDER_FALSE then\n        thunder = false\n    end\nend\nif thunder == nil then\n    return\nend\n\n-- Verify every expected thunder AOE is present (real = 2 real thunder; fake = 2 fake + 2 danger).\nlocal function countById(id)\n    local n = 0\n    for _, a in ipairs(aoes) do\n        if tonumber(a.aoeID) == id then n = n + 1 end\n    end\n    return n\nend\n\nlocal thunderOk\nif thunder then\n    thunderOk = countById(REAL_THUNDER) >= 2\nelse\n    thunderOk = countById(FAKE_THUNDER) >= 2 and countById(THUNDER_DANGER) >= 2\nend\n\nif not thunderOk then\n    return\nend\n\nif not (Argus2 and GUI and PerpCore and PerpCore.DrawAOEShape) then\n    return\nend\n\n-- Danger ID to subtract from the green: real -> real thunder, fake -> thunder danger.\nlocal dangerId = thunder and REAL_THUNDER or THUNDER_DANGER\n\n-- Match the draw lifetime to the danger AOEs (fallback 8s).\nlocal ms = 0\nfor _, a in ipairs(aoes) do\n    if tonumber(a.aoeID) == dangerId then\n        ms = math.max(ms, (tonumber(a.duration) or 6) * 1000)\n    end\nend\nif ms <= 0 then ms = 8000 end\n\n-- FLAG_OCCLUDE carves the draw out as negative space; FLAG_WARP_TERRAIN makes it follow the ground.\nlocal occlude = Argus2.RenderFlags.FLAG_OCCLUDE | Argus2.RenderFlags.FLAG_WARP_TERRAIN\nlocal green   = GUI:ColorConvertFloat4ToU32(0, 1, 0, 0.4)\n\n-- Full-arena green circle (solid fill), then subtract every danger AOE.\nArgus2.addTimedCircleFilled(ms, CENTER.x, CENTER.y, CENTER.z, ARENA_RADIUS, SEG, green, green, nil, 0, nil, nil, nil, 0)\n\nfor _, a in ipairs(aoes) do\n    if tonumber(a.aoeID) == dangerId then\n        PerpCore.DrawAOEShape(green, a.x, a.y, a.z, a.aoeCastType, a.aoeLength, a.aoeWidth, a.heading, ms, occlude)\n    end\nend\n\nself.used = true\n",
+				executeType = 2,
+				mechanicTime = 185.952,
+				name = "[MM3] Draw Safespot",
+				timeRange = true,
+				timelineIndex = 37,
+				timerEndOffset = 5,
+				timerStartOffset = -10,
+				uuid = "fb716bb1-4d74-9862-80a0-7262ccf317bd",
+				version = 2,
+			},
+			inheritedIndex = 5,
 		},
 		
 		{
@@ -733,6 +1475,109 @@ local tbl =
 				timerEndOffset = 10,
 				timerStartOffset = -10,
 				uuid = "f0b77d6c-a799-cb5f-878f-390ab9e9fde7",
+				version = 2,
+			},
+			inheritedIndex = 7,
+		},
+	},
+	[38] = 
+	{
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+				},
+				conditions = 
+				{
+				},
+				execute = "-- [MM3] Cleanup\n-- Clear everything Mystery Magic 3 recorded/used so a later MM3 (or a fresh pull) starts clean.\n-- Setting to nil (not {}) lets the recorder reactions re-create the tables on their next event,\n-- and keeps the read-only Callout/Draw reactions bailing until data exists again.\ndata.mm3AOEs      = nil\ndata.kefkaMarkers = nil\ndata.partyMarkers = nil\n\nself.used         = true\n",
+				executeType = 2,
+				mechanicTime = 186.514,
+				name = "[MM3] Cleanup",
+				timelineIndex = 38,
+				uuid = "e6b64e38-f999-9483-8172-6dbe4cd56a1e",
+				version = 2,
+			},
+			inheritedIndex = 1,
+		},
+	},
+	[41] = 
+	{
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+					
+					{
+						data = 
+						{
+							aType = "Lua",
+							actionLua = "-- Store Markers\n-- OnEntityMarkerAdd (condition already gates to the Forsaken markers: Stack 715, Circle 716, Cone 717)\n-- Record each marker against the name of the player it was placed on, in data.forsakenMarkers\n-- (keyed by player name -> markerID). Loops (self.used each fire) so all players get captured.\n\nlocal entityId = eventArgs.entityID or eventArgs.entityId\nlocal ent      = entityId and TensorCore and TensorCore.mGetEntity(entityId)\nlocal name     = ent and ent.name\n\nif not name or name == \"\" then\n    self.used = true\n    return\nend\n\ndata.forsakenMarkers = data.forsakenMarkers or {}\ndata.forsakenMarkers[name] = eventArgs.markerID\n\nself.used = true\n",
+							gVar = "ACR_RikuNIN3_CD",
+							uuid = "38bca9d6-da66-f3f1-8786-e6fb25a7c557",
+							version = 2.1,
+						},
+					},
+				},
+				conditions = 
+				{
+					
+					{
+						data = 
+						{
+							category = "Event",
+							eventArgType = 3,
+							markerIDList = 
+							{
+								715,
+								716,
+								717,
+							},
+							name = "Is Forsaken Marker",
+							uuid = "515ba360-a107-1174-bc0c-dc7cef108d0e",
+							version = 3,
+						},
+					},
+				},
+				enabled = false,
+				eventType = 4,
+				loop = true,
+				mechanicTime = 234.608,
+				name = "[Forsaken] Store First Markers",
+				timeRange = true,
+				timelineIndex = 41,
+				timerEndOffset = 5,
+				timerStartOffset = -5,
+				uuid = "06a787e5-5ae2-25f0-9622-7f9552c15e68",
+				version = 2,
+			},
+		},
+		
+		{
+			data = 
+			{
+				actions = 
+				{
+				},
+				conditions = 
+				{
+				},
+				enabled = false,
+				execute = "-- Callout Marker + Role\n-- Uses data.forsakenMarkers (name -> markerID) captured by \"Store Markers\".\n-- Pair each role with its partner, find our buddy, and check whether we share a marker:\n--   shared marker     -> \"Helper\", towers 4,5,6,7\n--   different marker  -> \"Tower\",  towers 1,2,3,8\n-- Stores the buddy's name in data.forsakenBuddy for later reference.\n\n-- Partner groups (both directions so a lookup works from either side).\nlocal PARTNERS = {\n    MT = \"H1\", H1 = \"MT\",\n    OT = \"H2\", H2 = \"OT\",\n    M1 = \"R1\", R1 = \"M1\",\n    M2 = \"R2\", R2 = \"M2\",\n}\n\n-- Forsaken marker IDs -> readable name.\nlocal MARKER_NAMES = {\n    [715] = \"Stack\",\n    [716] = \"Circle\",\n    [717] = \"Cone\",\n}\n\nif not (PerpCore and data.forsakenMarkers) then\n    return\nend\n\n-- Our role.\nlocal me     = PerpCore.GetPlayer()\nlocal myRole = me and PerpCore.GetPlayerRole(me)\nif not myRole then\n    return\nend\n\n-- Our buddy's role -> assigned name. Remember it for later.\nlocal buddyRole = PARTNERS[myRole]\nlocal buddyName = buddyRole and PerpCore.Config.PartyRoles[buddyRole]\ndata.forsakenBuddy = buddyName\n\n-- Both markers must be stored before we can resolve helper vs tower.\nlocal myMarker    = me.name and data.forsakenMarkers[me.name]\nlocal buddyMarker = buddyName and data.forsakenMarkers[buddyName]\nif not myMarker or not buddyMarker then\n    return\nend\n\n-- Sharing the marker with our buddy makes us the helper (towers 4-7); otherwise we're a tower (1,2,3,8).\nlocal shared        = (myMarker == buddyMarker)\nlocal roleLabel     = shared and \"Helper\" or \"Tower\"\nlocal towers        = shared and \"Towers 4,5,6,7\" or \"Towers 1,2,3,8\"\nlocal partnerMarker = MARKER_NAMES[buddyMarker] or tostring(buddyMarker)\n\nlocal callout = roleLabel .. \" | \" .. towers .. \" | Partner is \" .. partnerMarker\nif AnyoneCore and AnyoneCore.Shotcall then\n    AnyoneCore.Shotcall(callout, false, 5, false, 100)\nend\n\nself.used = true\n",
+				executeType = 2,
+				mechanicTime = 234.608,
+				name = "[Forsaken] Callout Marker + Role",
+				randomOffset = 5,
+				timeRange = true,
+				timelineIndex = 41,
+				timerEndOffset = 5,
+				timerOffset = -5,
+				timerStartOffset = -5,
+				uuid = "824579df-edd1-7c37-b789-eee1838064c0",
 				version = 2,
 			},
 		},
